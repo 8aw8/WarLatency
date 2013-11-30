@@ -118,12 +118,12 @@ BOOL CServer::onConnected()
    printf("Connected is %s\n", inet_ntoa(send_service.sin_addr));
    printf("Wait sending message...\n");
    
-    /*
+    
 	client = new CClient(AcceptSocket);
 	  strcpy(client->IP_Addr,inet_ntoa(send_service.sin_addr));
 	  client->Execute(); 
 	  VectorClient.push_back(client);
-    */
+    
     return TRUE;
 }
 BOOL CServer::StartWaitConnect()
@@ -141,7 +141,7 @@ BOOL CServer::StopWaitConnect()
 
 void CServer::DeleteNotWorkingThread()
 {
-/*  CClient* client;
+  CClient* client;
   for (int i = 0; i< VectorClient.size();i++ )
   {
     client=VectorClient[i];
@@ -155,7 +155,7 @@ void CServer::DeleteNotWorkingThread()
 		VectorClient.erase(VectorClient.begin()+i);
 	}
   }
-  */
+  
 }
 
 

@@ -32,6 +32,6 @@ int main(int argc, char **argv)
 	//server->StopWaitConnect();
 	server->RealiseServer();
 
-    delete server; 
+    delete [] server; 
 }
 

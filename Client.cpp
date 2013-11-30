@@ -45,22 +45,42 @@ void CClient::Realize()
 
 DWORD CClient::ThreadFunc()
 {
-  int BytesSend = -1; 
+	int BytesSend = -1; 
     
-  //printf("Clients Socket= %d\n",m_socket);
+  printf("Clients Socket= %d\n",m_socket);
   BOOL StopLoop= FALSE;
 
 //  CPacketParser parser; 
-//  char* SendBuffer = new char[RecvBufferSize]; 
+  char* SendBuffer = new char[RecvBufferSize]; 
 //  MDIS_packet* pack;
 
- // while (!StopLoop)
- // {
-	
-//  }// while (!StopLoop)	 
+  while (!StopLoop)
+  {
+//          pack=NULL;
+//----------------------------------------------------
+   while ((!StopLoop))
+   {
+       Sleep(50);    
+           BytesSend = recv(m_socket, SendBuffer, RecvBufferSize, 0);
+        
+           if (BytesSend<0)
+           {
+                   if(handlErr(WSAGetLastError())!=0)//disconect
+                   {
+						  StopLoop=TRUE;
+                          printf("Client for ip %s is disconnected.\n",IP_Addr);
+                   }//disconect        
+           }
+		   else
+		   {   SendBuffer[BytesSend]=0;
+			   printf("%s", SendBuffer);
+		   }
+          
+    }//while ((pack==NULL)&&(!StopLoop))
+  }// while (!StopLoop)         
   
-  //InterlockedIncrement((long*)&StopingThread);			   
-//  delete [] SendBuffer;
+  //InterlockedIncrement((long*)&StopingThread);                           
+  delete [] SendBuffer;
   this->Realize();
   StopingThread=TRUE;
   
