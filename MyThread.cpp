@@ -8,11 +8,7 @@
 #include "MyThread.h"
 // #include "afxdb.h"
 
-//#ifdef _DEBUG
-//#undef THIS_FILE
-//static char THIS_FILE[]=__FILE__;
-//#define new DEBUG_NEW
-//#endif
+
 
 //////////////////////////////////////////////////////////////////////
 // Construction/Destruction
@@ -23,16 +19,17 @@ unsigned __stdcall ThreadProc(void* lpParameter)
 {
 	CMyThread *pMyThread=(CMyThread *)lpParameter;
 	  
-	  pMyThread->CriticalSection = new CRITICAL_SECTION; //printf("New %ld bytes",sizeof(CRITICAL_SECTION));
-	  InitializeCriticalSection(pMyThread->CriticalSection);
-      EnterCriticalSection(pMyThread->CriticalSection);
-	//  printf("sizeof(*pMyThread) %ld\n",sizeof(*pMyThread));
-
+//	  pMyThread->CriticalSection = new CRITICAL_SECTION; //printf("New %ld bytes",sizeof(CRITICAL_SECTION));
+//	  InitializeCriticalSection(pMyThread->CriticalSection);
+//     EnterCriticalSection(pMyThread->CriticalSection);
+//	  printf("sizeof(*pMyThread) %ld\n",sizeof(*pMyThread));
+	
  DWORD result=pMyThread->ThreadFunc();
+     
        
-       LeaveCriticalSection(pMyThread->CriticalSection); 
-	   DeleteCriticalSection(pMyThread->CriticalSection);
-       delete pMyThread->CriticalSection;
+ //      LeaveCriticalSection(pMyThread->CriticalSection); 
+//	   DeleteCriticalSection(pMyThread->CriticalSection);
+//       delete pMyThread->CriticalSection;
    
    // ExitThread(0);
 
@@ -44,8 +41,8 @@ unsigned __stdcall ThreadProc(void* lpParameter)
 
 CMyThread::CMyThread()
 {
-	m_hThread=NULL;
-	
+	type=-1;
+	m_hThread=NULL;	
 }
 
 CMyThread::~CMyThread()
@@ -54,6 +51,11 @@ CMyThread::~CMyThread()
   
   // 	ExitThread(0);
 	//  Terminate(FALSE);
+}
+
+HANDLE CMyThread::getThreadHandle()
+{
+	return m_hThread;
 }
 
 
@@ -87,12 +89,28 @@ BOOL CMyThread::Execute()
     return (m_hThread==NULL)?FALSE:TRUE;
 }
 
+BOOL CMyThread::isActive()
+{
+	DWORD dwExitCode;
+    GetExitCodeThread(m_hThread,&dwExitCode);
+	if (dwExitCode==STILL_ACTIVE) 
+		return TRUE; 
+	else 
+		return FALSE;
+	return FALSE;
+}
+
 DWORD CMyThread::Terminate(BOOL bCritical)
 {
 	DWORD dwExitCode;
+
+	
 	
 	Sleep(100);
 	GetExitCodeThread(m_hThread,&dwExitCode);
+
+	TerminateThread(m_hThread,0);
+
 	if (dwExitCode==STILL_ACTIVE)
 	{
 		while (dwExitCode==STILL_ACTIVE)
@@ -107,7 +125,7 @@ DWORD CMyThread::Terminate(BOOL bCritical)
 	else 
 	{
     	GetExitCodeThread(m_hThread,&dwExitCode);	 
-	 //   TerminateThread(m_hThread,0);
+	//    TerminateThread(m_hThread,0);
 	//	_endthreadex(0);
 	//	ExitThread(0);
 	}

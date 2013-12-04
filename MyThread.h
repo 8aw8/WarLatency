@@ -1,5 +1,3 @@
-// MyThread.h: interface for the CMyThread class.
-//
 //////////////////////////////////////////////////////////////////////
 
 #if !defined(AFX_MYTHREAD_H__6B892D2F_9DF8_11D5_A3EE_E2D14EB90E01__INCLUDED_)
@@ -21,11 +19,16 @@ class CMyThread
 private:
 
 public:
+	int type;
+	BOOL StopingThread;
 	DWORD Terminate(BOOL bCritical=FALSE);
 	BOOL Execute();
-	CMyThread();
+	CMyThread();	
 	virtual ~CMyThread();
 
+HANDLE getThreadHandle();
+BOOL  isActive();
+	
 protected:
 	//DWORD m_dwID;
 	unsigned int m_dwID;

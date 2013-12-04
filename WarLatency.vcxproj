@@ -85,12 +85,16 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Client.cpp" />
+    <ClCompile Include="ClientPool.cpp" />
+    <ClCompile Include="Games.cpp" />
     <ClCompile Include="MyThread.cpp" />
     <ClCompile Include="Server.cpp" />
     <ClCompile Include="WarLatency.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Client.h" />
+    <ClInclude Include="ClientPool.h" />
+    <ClInclude Include="Games.h" />
     <ClInclude Include="MyThread.h" />
     <ClInclude Include="Server.h" />
   </ItemGroup>

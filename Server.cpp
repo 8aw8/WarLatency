@@ -7,7 +7,57 @@
 #include "winsock2.h"
 #include <stdio.h>
 #include "MyThread.h"
-#include ".\Client.h"
+#include "Client.h"
+
+#include <locale.h>
+
+
+void CharToWChar(const char * Text,wchar_t * &res)
+{
+	size_t convert=0;
+	size_t bytes = strlen(Text)*2;
+	res = (wchar_t*) calloc(bytes,sizeof(wchar_t*));
+	setlocale(LC_CTYPE, "Russian_Russia.1251");
+	mbstowcs(res,Text,bytes);
+	//return res;
+}
+void WCharToChar(const wchar_t * Text,char * &Res)
+{
+	size_t convert=0;
+	size_t bytes = wcslen(Text)*2;
+	Res = (char *)calloc(bytes,1);
+	setlocale(LC_CTYPE, "Russian_Russia.1251");
+	wcstombs(Res, Text, bytes);
+}
+
+LPWSTR StringToUnicode(LPCSTR sString)
+{
+    int iLength;
+    iLength = MultiByteToWideChar
+                (
+                CP_ACP,
+                0,
+                sString,
+                -1,
+                NULL,
+                0
+                );
+    if (iLength)
+    {
+        LPWSTR szWideCharStr = new WCHAR[iLength];
+        MultiByteToWideChar
+                (
+                CP_ACP,
+                0,
+                sString,
+                -1,
+                szWideCharStr,
+                iLength
+                );
+        return szWideCharStr;
+    }
+    return NULL;
+}
 
 
 
@@ -47,6 +97,10 @@ CServer::~CServer(void)
 }
 void CServer::RealiseServer()
 {
+	
+	StopThread=TRUE;
+	Sleep(120);
+	clientPool->deleteAllThread();	
     shutdown(ListenSocket, SD_BOTH);
 	closesocket(ListenSocket);  
 	WSACleanup();
@@ -94,20 +148,19 @@ SOCKET CServer::WaitConnect()
 }
 
 DWORD CServer::ThreadFunc()
-{
- 
+{ 
   while (!StopThread)
   {
 	AcceptSocket=WaitConnect();
 	while (AcceptSocket==SOCKET_ERROR)
 	{
         AcceptSocket=WaitConnect();
-		Sleep(50);
-	    DeleteNotWorkingThread();
+		Sleep(60);
+//	    DeleteNotWorkingThread();
 	}    
-	    onConnected();
+	   if (!StopThread) onConnected();
   }
-   printf("Thread stop!!!\n");
+   printf("Server thread stop!!!\n");
 	return 0;
 }
 BOOL CServer::onConnected()
@@ -117,13 +170,22 @@ BOOL CServer::onConnected()
    printf("-----------------------------------------\n");
    printf("Connected is %s\n", inet_ntoa(send_service.sin_addr));
    printf("Wait sending message...\n");
-   
-    
-	client = new CClient(AcceptSocket);
+
+  char* menuStr = "List gamers: 1\r\nStart game:  2\r\nQuit:        9\r\n";   
+
+//  wchar_t * buf;
+//  CharToWChar(menuStr, buf);
+
+  CClient* client = new CClient(AcceptSocket);
 	  strcpy(client->IP_Addr,inet_ntoa(send_service.sin_addr));
-	  client->Execute(); 
-	  VectorClient.push_back(client);
-    
+	  client->SendData(menuStr, strlen(menuStr));	  
+	   
+	//  client->SendData((char *)buf, strlen((menuStr))*2);	  
+
+	  client->clientPool=clientPool;
+	  client->Execute();
+	  clientPool->addClient(client); 
+
     return TRUE;
 }
 BOOL CServer::StartWaitConnect()
@@ -139,27 +201,18 @@ BOOL CServer::StopWaitConnect()
     return TRUE;
 }
 
-void CServer::DeleteNotWorkingThread()
+void CServer::DeleteAllThread()
 {
-  CClient* client;
-  for (int i = 0; i< VectorClient.size();i++ )
-  {
-    client=VectorClient[i];
-	if (client->StopingThread) 
-	{
-		client->Realize();
-		Sleep(1000);
-		client->Terminate();
-		Sleep(1000);
-		delete [] client;
-		VectorClient.erase(VectorClient.begin()+i);
-	}
-  }
-  
+
 }
 
 
+void CServer::DeleteNotWorkingThread()
+{
+ 
+}
 
-
-
-
+char* CServer::printListThread()
+{
+ 	return NULL;
+}

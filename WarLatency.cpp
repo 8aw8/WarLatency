@@ -9,29 +9,39 @@
 #include <stdio.h>
 #include <conio.h>
 #include "Server.h"
+#include "ClientPool.h"
 //#include <ctype.h>
 
+#include <locale.h>
 
 
 
 int main(int argc, char **argv)
 {
-	printf("Hello world \n");
+	
+	setlocale(LC_ALL, "rus");
+    printf("%s", "Привет, мир! \n");
 
-	CServer* server = new CServer(12345);
-    server->StartWaitConnect();
+   CClientPool* clientPool = new CClientPool();	  
 
-
-//	server->RealiseServer();
+   clientPool->Execute();
    
-//	delete server; 
+   CServer* server = new CServer(12345);
+   server->clientPool = clientPool;
+   server->StartWaitConnect();
 
+  _getch();
+  
+   server->StopWaitConnect();
+   server->RealiseServer();
 
-	_getch();
+   clientPool->deleteAllThread();
+   clientPool->Terminate();
+  
+   delete server; 
+   delete clientPool;
 
-	//server->StopWaitConnect();
-	server->RealiseServer();
-
-    delete [] server; 
+   _getch();
+   return 0;
 }
 

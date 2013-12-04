@@ -4,7 +4,7 @@
 
 //#include "stdafx.h"
 #include ".\client.h"
-//#include ".\server.h"
+//#include "Server.h"
 #include <iostream>
 //#include "ServiceDiagnostics.h"
 //#include "ReplicPacket.h"
@@ -12,8 +12,9 @@
 //#include "inifile.h"
 //#include "PacketParser.h"
 
-int RecvBufferSize=1024;
+#include "Games.h"
 
+int RecvBufferSize=8192;
 
 //#include <Pkfuncs.h>
 
@@ -31,16 +32,24 @@ CClient::CClient(SOCKET socket) :CMyThread()
 {
 	m_socket=socket;
 	StopingThread=FALSE;
+	command = new char[256];
+	command[0]=0;
+	commandSize=0;
+	SendBuffer = new char[RecvBufferSize]; 
+	type=1;//Class CClient
+	game_mode=0;// Game mode: 0 - Select game; 1 - Game started;
 }
 CClient::~CClient(void)
 {
   //Realize();
+	delete [] SendBuffer;
+	delete [] command;
 }
 void CClient::Realize()
 {
 	shutdown(m_socket, SD_BOTH);
 	closesocket(m_socket);
-	//CloseHandle(m_hThread);
+//	CloseHandle(m_hThread);
 }
 
 DWORD CClient::ThreadFunc()
@@ -51,55 +60,181 @@ DWORD CClient::ThreadFunc()
   BOOL StopLoop= FALSE;
 
 //  CPacketParser parser; 
-  char* SendBuffer = new char[RecvBufferSize]; 
+  
 //  MDIS_packet* pack;
-
-  while (!StopLoop)
-  {
-//          pack=NULL;
-//----------------------------------------------------
+  
    while ((!StopLoop))
    {
-       Sleep(50);    
-           BytesSend = recv(m_socket, SendBuffer, RecvBufferSize, 0);
-        
-           if (BytesSend<0)
+           Sleep(60);               
+		   BytesSend = recv(m_socket, SendBuffer, RecvBufferSize, 0);
+		//   printf("Byte recive %d \n", BytesSend);
+/*
+   recv 
+   -1 - not send data 
+    0 - not connected
+   >0 - data recive
+*/
+           if (BytesSend<=0)
            {
-                   if(handlErr(WSAGetLastError())!=0)//disconect
+			   if(handlErr(WSAGetLastError())!=0)//disconect
+				   {
+					     StopLoop=TRUE;
+						 printf("Connecton for ip %s is abnormale false.\n",IP_Addr);
+
+				   }
+			   if (BytesSend==0)                   
                    {
 						  StopLoop=TRUE;
                           printf("Client for ip %s is disconnected.\n",IP_Addr);
                    }//disconect        
            }
 		   else
-		   {   SendBuffer[BytesSend]=0;
-			   printf("%s", SendBuffer);
-		   }
-          
-    }//while ((pack==NULL)&&(!StopLoop))
+		   {  
+			  if (BytesSend>0) OnRecvPacket(SendBuffer, BytesSend);			   
+		   }		   		   
   }// while (!StopLoop)         
   
-  //InterlockedIncrement((long*)&StopingThread);                           
-  delete [] SendBuffer;
+  //InterlockedIncrement((long*)&StopingThread);                             
   this->Realize();
   StopingThread=TRUE;
-  
+
   return 0;
 }
 
-void CClient::OnRecvPacket(char* buffer, int BufferSize, _HeadPacket head)
+char* CClient::setCommand(char* buffer, int BufferSize)
 {
-	//0x200, 0x201, 0x202, 0x700
-//	_HeadPacket OutHead;
+	int i = 0;
+	int endCommand = -1;
+
+	while (i<BufferSize)
+	{
+		if (buffer[i]=='\n')
+		{
+			commandSize=commandSize+i;
+			endCommand=0;
+			i=BufferSize;
+		}						
+		else 
+			command[i+commandSize] = buffer[i];
+		i++;
+	}
+
+	if (endCommand==0)
+	{
+		command[commandSize]=0;
+		commandSize=0;
+		return command;
+	}
+	else
+	{
+		commandSize = commandSize+BufferSize;
+		command[commandSize]=0;
+		return NULL;
+	}	
+
+	return NULL;
+}
+
+void CClient::getClients()
+{
+	// char * outputBuffer = "1 2 3 \n";
+  //	send(m_socket, outputBuffer, 8,0); 
+
+   std::cout << "Command 1" <<std::endl;			  
+
+}
+
+void CClient::startGame(void)
+{
+	std::cout << "Command 2" <<std::endl;	
+
+	char *str1 = "Client not found. \n";
 	
-	printf("-----------BODY PACKET------------------\n");
+	clientPool->printClients();
 	
+	CMyThread *_client_ = clientPool->getRandomClient(this);
+	if (_client_==NULL)
+	{
+		this->SendData(str1, strlen(str1));
+	}
+	else
+	{
+		CClient *gameClient = dynamic_cast< CClient* >(_client_);
+		CGames *games = new CGames(this,gameClient);
+		clientPool->addClient(games);
+			  this->runGames=games;
+		gameClient->runGames=games;
+		games->Execute();	
+	}
 }
 
 
+void CClient::OnRecvPacket(char* buffer, int BufferSize)
+{		
+	buffer[BufferSize]=0;
+	// printf("Thread:%d socket:%d recive %s \n", m_hThread, m_socket, buffer);
+	
+//	char* menuStr = "List gamers: 1\r\n
+	//               Start game:  2\r\n
+    //               Quit:        9\r\n";   
+
+  if (game_mode==0)
+	if (setCommand(buffer, BufferSize)!=NULL)
+	{
+		std::cout << "Thread/Socket:" << m_hThread <<"/"<< m_socket << " Set command " << command <<std::endl;
+
+		switch (atoi(command))
+		{
+		case 1:			
+			getClients();			 
+			 break;				
+		case 2:
+			startGame();
+			 break;				
+		case 9:
+			{
+				std::cout << "Command 9" <<std::endl;
+				Realize();
+			}
+			 break;	
+		default:
+			std::cout << "Command not found!!!" <<std::endl;
+			 break;
+	    }//switch (head.CodCommand)
+	}
+	
+	if (game_mode==1)
+	{
+		CGames *games =dynamic_cast< CGames* >(runGames);
+
+		std::cout << "Game client is startted!!! runGames=" << games->type << " \n" << std::endl;
+		
+		int endCommand = -1;
+		int i=0;
+
+	   while (i<BufferSize)
+       {
+	       if (buffer[i]==' ')
+		   {
+			  endCommand=0;
+			  i=BufferSize;
+		   }								  
+		i++;
+	   }//while
+
+	   if (endCommand==0)  games->eventFromClient(this);
+	} 
+}
+
+void CClient::SendData(char* buffer, int bufferSize) 
+{
+	send(m_socket, buffer, bufferSize,0); 
+}
+
 void CClient::EchoClient()
 {
-  printf("This is client socket = %d \n", m_socket);
+ // printf("This is client socket = %d \n", m_socket);
+	 printf("EchoClient() This is client socket \n");
 }
 BOOL CClient::WorkTypePacket(_HeadPacket head)
 {

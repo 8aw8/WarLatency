@@ -1,10 +1,12 @@
 #pragma once
 #include "winsock2.h"
 #include "MyThread.h"
+#include "ClientPool.h"
 #include <atlstr.h>
 #include <vector>
 //#include "StdAfx.h"
 //#include "DBThread.h"
+
 
 using namespace std;
 
@@ -41,6 +43,9 @@ struct _ConnStr
 class CClient : public CMyThread
 {
 public:
+	int type;
+	int game_mode;
+
 	CClient(SOCKET socket);
 	virtual ~CClient(void);
 	void Realize(void);
@@ -49,6 +54,12 @@ public:
  	_HeadPacket HeadPacket;
       BOOL StopingThread;
 	  char IP_Addr[16];
+
+	  CClientPool *clientPool;
+	  CMyThread *runGames;
+
+	  char* SendBuffer;
+	  char* command; int commandSize;	
  	
 //CDBThread a;
   vector <void*> DBTVector;
@@ -61,8 +72,11 @@ public:
 	BOOL TrueMDISPacket(_HeadPacket head);
 	 int handlErr(const int err);
     void PrintHeadPacket(_HeadPacket head);
+   char* setCommand(char* buffer, int BufferSize);
 
-   	void OnRecvPacket(char* buffer, int BufferSize, _HeadPacket head);
-
+   	void OnRecvPacket(char* buffer, int BufferSize);
+	void SendData(char* buffer, int bufferSize);
+	void CClient::getClients();	
+	void startGame(void);
        
 };

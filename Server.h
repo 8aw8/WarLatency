@@ -4,7 +4,9 @@
 #include "MyThread.h"
 #include <vector>
 //#include <iostream>
+
 #include "Client.h"
+#include "ClientPool.h"
 
  using namespace std;
 
@@ -28,10 +30,13 @@ public:
 	SOCKET WaitConnect();
     BOOL StopWaitConnect();
 
+	CClientPool *clientPool;
+
 	char* EventName;
 	HANDLE StopEvent;
 	HANDLE StopEventClient;
 	BOOL StopThread;
+	
 	
  virtual BOOL onConnected();
      
@@ -40,14 +45,16 @@ public:
 	SOCKET AcceptSocket;
 	sockaddr_in service;
 	sockaddr_in send_service;
-	CClient* client;
+//	CClient* client;
      
-    vector <CClient*> VectorClient;
-	vector <CClient*>::iterator vc_Iter;
+//    vector <CClient*> VectorClient;
+//	vector <CClient*>::iterator vc_Iter;
 
-void DeleteNotWorkingThread();
+ void DeleteNotWorkingThread();
+ void DeleteAllThread();
+char* printListThread();
 
-protected:
+//protected:
 	DWORD ThreadFunc();
 	
 };
