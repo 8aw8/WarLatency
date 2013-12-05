@@ -13,6 +13,8 @@
 
 #include "afxdb.h"
 
+using namespace std;
+
 
 class CMyThread  
 {
@@ -22,6 +24,8 @@ public:
 	int type;
 	BOOL StopingThread;
 	DWORD Terminate(BOOL bCritical=FALSE);
+	DWORD Suspend(void);
+	DWORD Resume(void);
 	BOOL Execute();
 	CMyThread();	
 	virtual ~CMyThread();

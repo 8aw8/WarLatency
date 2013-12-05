@@ -96,6 +96,7 @@
     <ClInclude Include="ClientPool.h" />
     <ClInclude Include="Games.h" />
     <ClInclude Include="MyThread.h" />
+    <ClInclude Include="PoolSocket.h" />
     <ClInclude Include="Server.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

@@ -47,8 +47,7 @@ CMyThread::CMyThread()
 
 CMyThread::~CMyThread()
 {
-//   if (m_hThread!=NULL) CloseHandle(m_hThread);
-  
+   if (m_hThread!=NULL) CloseHandle(m_hThread);  
   // 	ExitThread(0);
 	//  Terminate(FALSE);
 }
@@ -100,12 +99,20 @@ BOOL CMyThread::isActive()
 	return FALSE;
 }
 
+DWORD CMyThread::Suspend(void)
+{
+  return SuspendThread(m_hThread);
+}
+
+DWORD CMyThread::Resume(void)
+{
+ return ResumeThread(m_hThread);
+}
+
+
 DWORD CMyThread::Terminate(BOOL bCritical)
 {
 	DWORD dwExitCode;
-
-	
-	
 	Sleep(100);
 	GetExitCodeThread(m_hThread,&dwExitCode);
 

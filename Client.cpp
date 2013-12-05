@@ -58,12 +58,7 @@ DWORD CClient::ThreadFunc()
     
   printf("Clients Socket= %d\n",m_socket);
   BOOL StopLoop= FALSE;
-
-//  CPacketParser parser; 
-  
-//  MDIS_packet* pack;
-  
-   while ((!StopLoop))
+  while ((!StopLoop))
    {
            Sleep(60);               
 		   BytesSend = recv(m_socket, SendBuffer, RecvBufferSize, 0);
@@ -78,14 +73,14 @@ DWORD CClient::ThreadFunc()
            {
 			   if(handlErr(WSAGetLastError())!=0)//disconect
 				   {
-					     StopLoop=TRUE;
-						 printf("Connecton for ip %s is abnormale false.\n",IP_Addr);
+					   StopLoop=TRUE;
+					   printf("Client %d for ip %s is disconnected.\n",m_socket, IP_Addr);
 
 				   }
 			   if (BytesSend==0)                   
                    {
 						  StopLoop=TRUE;
-                          printf("Client for ip %s is disconnected.\n",IP_Addr);
+						  printf("Client %d for ip %s is disconnected.\n",m_socket, IP_Addr);                          
                    }//disconect        
            }
 		   else
@@ -97,7 +92,6 @@ DWORD CClient::ThreadFunc()
   //InterlockedIncrement((long*)&StopingThread);                             
   this->Realize();
   StopingThread=TRUE;
-
   return 0;
 }
 

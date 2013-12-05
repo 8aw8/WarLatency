@@ -70,7 +70,7 @@ void CGames::eventFromClient(CClient *client)
 
 DWORD CGames::ThreadFunc(void)
 {
-	srand(time(NULL));
+	srand((unsigned int)time(NULL));
 
 	char* startGameStr = "Client is start game.  Press the spacebar when you see the number 3 \n"; //Противник найден. Нажмите пробел, когда увидите цифру 3
 		
@@ -86,8 +86,12 @@ DWORD CGames::ThreadFunc(void)
 	    _itoa_s(currentNumber,numStr,10);	   
 	  int delay = rand()%2000+2000;
 
-	   client1->SendData(numStr, 2);	
-	   client2->SendData(numStr, 2);
+      client1->SendData(numStr, 2);
+	  client1->SendData("\r\n",2);
+	  
+	  client2->SendData(numStr, 2);
+	  client2->SendData("\r\n",2);
+	  
 	   Sleep(delay);	
    }
    StopingThread = TRUE;

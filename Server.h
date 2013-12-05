@@ -50,10 +50,6 @@ public:
 //    vector <CClient*> VectorClient;
 //	vector <CClient*>::iterator vc_Iter;
 
- void DeleteNotWorkingThread();
- void DeleteAllThread();
-char* printListThread();
-
 //protected:
 	DWORD ThreadFunc();
 	

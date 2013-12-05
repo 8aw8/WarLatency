@@ -11,7 +11,7 @@
 
 #include <locale.h>
 
-
+/*
 void CharToWChar(const char * Text,wchar_t * &res)
 {
 	size_t convert=0;
@@ -27,7 +27,7 @@ void WCharToChar(const wchar_t * Text,char * &Res)
 	size_t bytes = wcslen(Text)*2;
 	Res = (char *)calloc(bytes,1);
 	setlocale(LC_CTYPE, "Russian_Russia.1251");
-	wcstombs(Res, Text, bytes);
+	wcstombs(Res, Text, bytes);	
 }
 
 LPWSTR StringToUnicode(LPCSTR sString)
@@ -59,7 +59,7 @@ LPWSTR StringToUnicode(LPCSTR sString)
     return NULL;
 }
 
-
+*/
 
 CServer::CServer(u_short port): CMyThread()
 {
@@ -156,7 +156,6 @@ DWORD CServer::ThreadFunc()
 	{
         AcceptSocket=WaitConnect();
 		Sleep(60);
-//	    DeleteNotWorkingThread();
 	}    
 	   if (!StopThread) onConnected();
   }
@@ -177,14 +176,16 @@ BOOL CServer::onConnected()
 //  CharToWChar(menuStr, buf);
 
   CClient* client = new CClient(AcceptSocket);
-	  strcpy(client->IP_Addr,inet_ntoa(send_service.sin_addr));
+	  strcpy_s(client->IP_Addr,inet_ntoa(send_service.sin_addr));
+	 // strcpy(client->IP_Addr,inet_ntoa(send_service.sin_addr));
 	  client->SendData(menuStr, strlen(menuStr));	  
 	   
 	//  client->SendData((char *)buf, strlen((menuStr))*2);	  
 
 	  client->clientPool=clientPool;
 	  client->Execute();
-	  clientPool->addClient(client); 
+	  clientPool->addClient(client);
+	  clientPool->addListenSocket(AcceptSocket);
 
     return TRUE;
 }
@@ -199,20 +200,4 @@ BOOL CServer::StopWaitConnect()
 	StopThread=TRUE;
  //	terminate();
     return TRUE;
-}
-
-void CServer::DeleteAllThread()
-{
-
-}
-
-
-void CServer::DeleteNotWorkingThread()
-{
- 
-}
-
-char* CServer::printListThread()
-{
- 	return NULL;
 }
