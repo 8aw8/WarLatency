@@ -21,15 +21,20 @@ CGames::CGames(CClient *_client1, CClient *_client2)
 
 CGames::~CGames(void)
 {
+	CloseHandle (hSemaphore);
 }
 
 void CGames::eventFromClient(CClient *client)
 {		
-	char* winStr = "You have pressed the spacebar first and WIN! \n"; //Вы нажали пробел первым и победили
-	char* falseStr = "You had not time to lose!!! \n"; //Вы не успели и проиграли
+	if (client->game_mode!=0)
+	{
+	  if (WaitForSingleObject(hSemaphore, 30000) == WAIT_FAILED) return;
 
-	char* winStr2 = "Your opponent rushed and you WIN! \n"; //Ваш противник поспешил и вы выйграли
-	char* falseStr2 = "You were in a hurry and lost!!! \n"; // Вы поспешили и проиграли
+	char* winStr = "You have pressed the spacebar first and WIN! \n"; //Р’С‹ РЅР°Р¶Р°Р»Рё РїСЂРѕР±РµР» РїРµСЂРІС‹Рј Рё РїРѕР±РµРґРёР»Рё
+	char* falseStr = "You had not time to lose!!! \n"; //Р’С‹ РЅРµ СѓСЃРїРµР»Рё Рё РїСЂРѕРёРіСЂР°Р»Рё
+
+	char* winStr2 = "Your opponent rushed and you WIN! \n"; //Р’Р°С€ РїСЂРѕС‚РёРІРЅРёРє РїРѕСЃРїРµС€РёР» Рё РІС‹ РІС‹Р№РіСЂР°Р»Рё
+	char* falseStr2 = "You were in a hurry and lost!!! \n"; // Р’С‹ РїРѕСЃРїРµС€РёР»Рё Рё РїСЂРѕРёРіСЂР°Р»Рё
 
 		
 	CClient *actionClient;
@@ -60,19 +65,26 @@ void CGames::eventFromClient(CClient *client)
 		    otherClient->SendData(winStr2,   strlen(winStr2));
 			actionClient->SendData(falseStr2, strlen(falseStr2));
 	}
+
+	  actionClient->game_mode=0; 
+	  otherClient->game_mode=0;
+
+	
+	if(hSemaphore != NULL)
+    ReleaseSemaphore(hSemaphore, 1, NULL);
 	
 	Sleep(1000);
 	client1->Realize();
 	client2->Realize();
 	StopLoop = TRUE;
-
+	}// if (client->game_mode!=0)
 }
 
 DWORD CGames::ThreadFunc(void)
 {
 	srand((unsigned int)time(NULL));
 
-	char* startGameStr = "Client is start game.  Press the spacebar when you see the number 3 \n"; //Противник найден. Нажмите пробел, когда увидите цифру 3
+	char* startGameStr = "Client is start game.  Press the spacebar when you see the number 3 \n"; //пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ. пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ, пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ 3
 		
 	client1->SendData(startGameStr, strlen(startGameStr));		
 	client2->SendData(startGameStr, strlen(startGameStr));		
