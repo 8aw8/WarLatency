@@ -12,6 +12,7 @@ public:
 
 	int currentNumber;
 	BOOL StopLoop;
+	HANDLE hSemaphore;
 		
 	CGames(void);
 	CGames(CClient *_client1, CClient *_client2);	
