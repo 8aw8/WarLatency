@@ -17,6 +17,7 @@ CGames::CGames(CClient *_client1, CClient *_client2)
 	StopingThread = FALSE;
 	client1->game_mode=1;//Game on client 1 started;
 	client2->game_mode=1;//Game on client 2 started;
+	hSemaphore = hSemaphore = CreateSemaphore(NULL, 1, 1, NULL);
 }
 
 CGames::~CGames(void)
