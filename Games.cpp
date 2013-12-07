@@ -27,17 +27,17 @@ CGames::~CGames(void)
 
 void CGames::eventFromClient(CClient *client)
 {		
+if (WaitForSingleObject(hSemaphore, 30000) == WAIT_FAILED) return;
+
 	if (client->game_mode!=0)
-	{
-	  if (WaitForSingleObject(hSemaphore, 30000) == WAIT_FAILED) return;
+	{	  
 
 	char* winStr = "You have pressed the spacebar first and WIN! \n"; //Вы нажали пробел первым и победили
 	char* falseStr = "You had not time to lose!!! \n"; //Вы не успели и проиграли
 
 	char* winStr2 = "Your opponent rushed and you WIN! \n"; //Ваш противник поспешил и вы выйграли
 	char* falseStr2 = "You were in a hurry and lost!!! \n"; // Вы поспешили и проиграли
-
-		
+			
 	CClient *actionClient;
 	CClient *otherClient;
 
@@ -70,15 +70,14 @@ void CGames::eventFromClient(CClient *client)
 	  actionClient->game_mode=0; 
 	  otherClient->game_mode=0;
 
-	
-	if(hSemaphore != NULL)
-    ReleaseSemaphore(hSemaphore, 1, NULL);
-	
 	Sleep(1000);
 	client1->Realize();
 	client2->Realize();
 	StopLoop = TRUE;
 	}// if (client->game_mode!=0)
+
+	if(hSemaphore != NULL)
+    ReleaseSemaphore(hSemaphore, 1, NULL);
 }
 
 DWORD CGames::ThreadFunc(void)
