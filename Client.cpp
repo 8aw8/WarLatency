@@ -74,13 +74,13 @@ DWORD CClient::ThreadFunc()
 			   if(handlErr(WSAGetLastError())!=0)//disconect
 				   {
 					   StopLoop=TRUE;
-					   printf("Client %d for ip %s is disconnected.\n",m_socket, IP_Addr);
+					   printf("Client %d for ip %s is disconnected.\n",m_hThread, IP_Addr);
 
 				   }
 			   if (BytesSend==0)                   
                    {
 						  StopLoop=TRUE;
-						  printf("Client %d for ip %s is disconnected.\n",m_socket, IP_Addr);                          
+			              printf("Client %d for ip %s is disconnected.\n",m_hThread, IP_Addr);                         
                    }//disconect        
            }
 		   else

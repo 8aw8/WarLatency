@@ -117,7 +117,7 @@ DWORD CMyThread::Terminate(BOOL bCritical)
 	GetExitCodeThread(m_hThread,&dwExitCode);
 
 	TerminateThread(m_hThread,0);
-
+/*
 	if (dwExitCode==STILL_ACTIVE)
 	{
 		while (dwExitCode==STILL_ACTIVE)
@@ -138,6 +138,8 @@ DWORD CMyThread::Terminate(BOOL bCritical)
 	}
 	if (m_hThread!=NULL) CloseHandle(m_hThread);
 	m_hThread=NULL;
+
+*/
 	return dwExitCode;
 	//}
 }

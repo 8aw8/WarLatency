@@ -35,8 +35,9 @@ int main(int argc, char **argv)
    server->StopWaitConnect();
    server->RealiseServer();
 
-   clientPool->deleteAllThread();
    clientPool->Terminate();
+   clientPool->deleteAllThread();
+  
   
    delete server; 
    delete clientPool;

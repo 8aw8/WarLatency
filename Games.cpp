@@ -22,6 +22,11 @@ CGames::CGames(CClient *_client1, CClient *_client2)
 
 CGames::~CGames(void)
 {
+	
+}
+
+void CGames::Realize()
+{
 	CloseHandle (hSemaphore);
 }
 
@@ -54,15 +59,15 @@ if (WaitForSingleObject(hSemaphore, 30000) == WAIT_FAILED) return;
 	
 	if (currentNumber==3) 
 	{
-			printf("Client %d is WIN!!! \n", actionClient->m_socket);
-			printf("Client %d is false!!! \n", otherClient->m_socket);
+		printf("Client %d is WIN!!! \n", actionClient->getThreadHandle());
+		printf("Client %d is false!!! \n", otherClient->getThreadHandle());
 		    actionClient->SendData(winStr,   strlen(winStr));
 			otherClient->SendData(falseStr, strlen(falseStr));
 	}
 	else
 	{
-		    printf("Client %d is WIN!!! \n", otherClient->m_socket);
-			printf("Client %d is false!!! \n", actionClient->m_socket);
+		printf("Client %d is WIN!!! \n", otherClient->getThreadHandle());
+		printf("Client %d is false!!! \n", actionClient->getThreadHandle());
 		    otherClient->SendData(winStr2,   strlen(winStr2));
 			actionClient->SendData(falseStr2, strlen(falseStr2));
 	}
@@ -84,7 +89,7 @@ DWORD CGames::ThreadFunc(void)
 {
 	srand((unsigned int)time(NULL));
 
-	char* startGameStr = "Client is start game.  Press the spacebar when you see the number 3 \n"; //��������� ������. ������� ������, ����� ������� ����� 3
+	char* startGameStr = "Client is start game. \r\nPress the spacebar when you see the number 3 \n"; //��������� ������. ������� ������, ����� ������� ����� 3
 		
 	client1->SendData(startGameStr, strlen(startGameStr));		
 	client2->SendData(startGameStr, strlen(startGameStr));		

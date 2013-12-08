@@ -47,7 +47,7 @@ public:
 	int game_mode;
 
 	CClient(SOCKET socket);
-	virtual ~CClient(void);
+	~CClient(void);
 	void Realize(void);
 
 	SOCKET m_socket;

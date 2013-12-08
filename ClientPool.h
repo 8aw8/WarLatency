@@ -27,6 +27,7 @@ public:
 	vector <CPoolSocket>::iterator vs_Iter;
 
 	vector <CMyThread*> workClient;
+	vector <CMyThread*>::iterator wc_Iter;
 
 	CPoolSocket poolSocket;
 	

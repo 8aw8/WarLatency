@@ -19,20 +19,33 @@ CClientPool::~CClientPool(void)
 void CClientPool::deleteNotWorkingThread()
 {
   CMyThread* client;
+  CClient *workClient;
+  CGames *games;
 
   for (unsigned int i = 0; i< VectorClient.size();i++ )
   {
   //  client=dynamic_cast< CClient* >(VectorClient[i]);
 	  client = VectorClient[i];
+	  
 	if (!client->isActive())
-//	if (client->StopingThread) 
 	{
-	//	client->Realize();		
-		client->Terminate();
-		delete client;
+		HANDLE idClient =  client->getThreadHandle();
 
+		client->Terminate();
+	
 		VectorClient.erase(VectorClient.begin()+i);
-		printf("ClientPool deleting client\n");
+		if (workClient = dynamic_cast< CClient* >(client)) 
+		{
+			workClient->Realize();
+			printf("ClientPool deleting client %d\n", idClient);	
+		}
+		if (games = dynamic_cast< CGames* >(client))
+		{
+			games->Realize();
+			printf("ClientPool deleting games %d\n", idClient);				
+		}
+  	delete client;
+
 	}
   }    
 }
@@ -62,15 +75,30 @@ void CClientPool::printClients()
 void CClientPool::deleteAllThread()
 {
    CMyThread* client;
+   CClient *workClient;
+   CGames *games;
+
   for (unsigned int i = 0; i< VectorClient.size();i++ )
   {
     //client=dynamic_cast< CClient* >(VectorClient[i]);	  
-	client=VectorClient[i];	  
+	client=VectorClient[i];	
+	HANDLE idClient =  client->getThreadHandle();
 	//client->Realize();
 	client->Terminate();	
-	printf("Thread %d is closed.\n", client->getThreadHandle() ); 
-	//printf("Thread is closed.\n"); 
+
+		if (workClient = dynamic_cast< CClient* >(client)) 
+		{
+			workClient->Realize();
+			printf("ClientPool deleting client %d\n", idClient);	
+		}
+		if (games = dynamic_cast< CGames* >(client))
+		{
+			games->Realize();
+			printf("ClientPool deleting games %d\n", idClient);				
+		}
+
 	delete client;
+
 	VectorClient.erase(VectorClient.begin()+i);
   }
 

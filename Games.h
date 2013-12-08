@@ -16,9 +16,10 @@ public:
 		
 	CGames(void);
 	CGames(CClient *_client1, CClient *_client2);	
-	virtual ~CGames(void);
+	~CGames(void);
 
 	void eventFromClient(CClient *client);
+	void Realize(); 
 
 protected:	
 	DWORD ThreadFunc();
