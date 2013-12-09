@@ -54,12 +54,10 @@ public:
  	_HeadPacket HeadPacket;
       BOOL StopingThread;
 	  char IP_Addr[16];
+   int RecvBufferSize;
 
 	  CClientPool *clientPool;
 	  CMyThread *runGames;
-
-	  char* SendBuffer;
-	  char* command; int commandSize;	
  	
 //CDBThread a;
   vector <void*> DBTVector;
@@ -78,5 +76,15 @@ public:
 	void SendData(char* buffer, int bufferSize);
 	void CClient::getClients();	
 	void startGame(void);
+
+private:
+	 // char* SendBuffer;
+	 // char* command; 	  
+
+    char SendBuffer[8192];
+	char command[256];
+
+	  int commandSize;	
+	  BOOL StopLoop;
        
 };

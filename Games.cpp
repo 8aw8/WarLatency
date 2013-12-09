@@ -17,7 +17,7 @@ CGames::CGames(CClient *_client1, CClient *_client2)
 	StopingThread = FALSE;
 	client1->game_mode=1;//Game on client 1 started;
 	client2->game_mode=1;//Game on client 2 started;
-	hSemaphore = hSemaphore = CreateSemaphore(NULL, 1, 1, NULL);
+    hSemaphore = CreateSemaphore(NULL, 1, 1, NULL);
 }
 
 CGames::~CGames(void)
@@ -27,7 +27,7 @@ CGames::~CGames(void)
 
 void CGames::Realize()
 {
-	CloseHandle (hSemaphore);
+	CloseHandle(hSemaphore);
 }
 
 void CGames::eventFromClient(CClient *client)
@@ -81,8 +81,7 @@ if (WaitForSingleObject(hSemaphore, 30000) == WAIT_FAILED) return;
 	StopLoop = TRUE;
 	}// if (client->game_mode!=0)
 
-	if(hSemaphore != NULL)
-    ReleaseSemaphore(hSemaphore, 1, NULL);
+	if(hSemaphore != NULL) ReleaseSemaphore(hSemaphore, 1, NULL);
 }
 
 DWORD CGames::ThreadFunc(void)

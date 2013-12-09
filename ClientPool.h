@@ -36,9 +36,8 @@ public:
 	BOOL StopingThread;
 	
 	CClientPool(void);
-	virtual ~CClientPool(void);
+	virtual ~CClientPool(void);	
 	
-		void deleteNotWorkingThread(void);
 		void deleteAllThread(void);
 		void addClient(CMyThread* client);
 		void addListenSocket(SOCKET socket);
@@ -48,6 +47,9 @@ public:
        DWORD ThreadFunc();
 
 private:
+	 
 	int countClients(void);
+	void deleteNotWorkingThread(void);
+
 };
 

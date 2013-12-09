@@ -19,22 +19,21 @@ unsigned __stdcall ThreadProc(void* lpParameter)
 {
 	CMyThread *pMyThread=(CMyThread *)lpParameter;
 	  
-//	  pMyThread->CriticalSection = new CRITICAL_SECTION; //printf("New %ld bytes",sizeof(CRITICAL_SECTION));
-//	  InitializeCriticalSection(pMyThread->CriticalSection);
-//     EnterCriticalSection(pMyThread->CriticalSection);
+	//  pMyThread->CriticalSection = new CRITICAL_SECTION; //printf("New %ld bytes",sizeof(CRITICAL_SECTION));
+	//  InitializeCriticalSection(pMyThread->CriticalSection);
+    // EnterCriticalSection(pMyThread->CriticalSection);
 //	  printf("sizeof(*pMyThread) %ld\n",sizeof(*pMyThread));
 	
  DWORD result=pMyThread->ThreadFunc();
      
        
- //      LeaveCriticalSection(pMyThread->CriticalSection); 
-//	   DeleteCriticalSection(pMyThread->CriticalSection);
-//       delete pMyThread->CriticalSection;
+      // LeaveCriticalSection(pMyThread->CriticalSection); 
+	  // DeleteCriticalSection(pMyThread->CriticalSection);
+      // delete pMyThread->CriticalSection;
    
    // ExitThread(0);
 
 	_endthreadex(0);
-
 	return 0;
 }
 
@@ -43,11 +42,14 @@ CMyThread::CMyThread()
 {
 	type=-1;
 	m_hThread=NULL;	
+	hSemaphore = CreateSemaphore(NULL, 1, 1, NULL);
 }
 
 CMyThread::~CMyThread()
 {
    if (m_hThread!=NULL) CloseHandle(m_hThread);  
+   m_hThread=NULL;
+   CloseHandle(hSemaphore);
   // 	ExitThread(0);
 	//  Terminate(FALSE);
 }
@@ -58,23 +60,30 @@ HANDLE CMyThread::getThreadHandle()
 }
 
 
-BOOL CMyThread::Execute()
+BOOL CMyThread::Execute(void *param)
 {
+	threadParam = param;
 	if (m_hThread)
 	{
 		return FALSE;
 	}
    //CMyThread* Thread = new CMyThread;
    
-	//CMyThread* pData = (CMyThread*)HeapAlloc(GetProcessHeap(), HEAP_ZERO_MEMORY, sizeof(*this));
-//	printf("sizeof(this)=%ld\n",sizeof(*this));
+//	CMyThread* pData = (CMyThread*)HeapAlloc(GetProcessHeap(), HEAP_ZERO_MEMORY, sizeof(*this));
+	
+	//	printf("sizeof(this)=%ld\n",sizeof(*this));
 
 	//pData=this;
 
-//	m_hThread=CreateThread(NULL,0,(LPTHREAD_START_ROUTINE)ThreadProc,this,0,&m_dwID);
-	//m_hThread=CreateThread(NULL,0,(LPTHREAD_START_ROUTINE)ThreadProc,pData,0,&m_dwID);
-    m_hThread = (HANDLE)_beginthreadex( NULL, 0, &ThreadProc, this, 0, &m_dwID);
-    ResumeThread(m_hThread);
+	//m_hThread=CreateThread(NULL,0,(LPTHREAD_START_ROUTINE)ThreadProc,this,0,&m_dwID);	
+    
+	//m_hThread = (HANDLE)_beginthreadex( NULL, 0, &ThreadProc, this, 0, &m_dwID);
+
+	m_hThread = (HANDLE)_beginthreadex( NULL, 0, &ThreadProc, param, 0, &m_dwID);
+
+//	m_hThread = CreateThread(NULL, 0, (LPTHREAD_START_ROUTINE)&ThreadProc, param, 0, lpThreadId);
+
+  //  ResumeThread(m_hThread);
 
 //	if (m_hThread!=NULL) 
 //          SetThreadPriority(m_hThread, THREAD_PRIORITY_LOWEST); 

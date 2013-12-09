@@ -26,7 +26,7 @@ public:
 	DWORD Terminate(BOOL bCritical=FALSE);
 	DWORD Suspend(void);
 	DWORD Resume(void);
-	BOOL Execute();
+	BOOL Execute(void *param);
 	CMyThread();	
 	virtual ~CMyThread();
 
@@ -35,7 +35,11 @@ BOOL  isActive();
 	
 protected:
 	//DWORD m_dwID;
+	HANDLE hSemaphore;
+
+    void *threadParam;
 	unsigned int m_dwID;
+	LPDWORD lpThreadId;	
 	virtual DWORD ThreadFunc()=0;
 	friend unsigned __stdcall ThreadProc(void* lpParameter);
 //	friend DWORD WINAPI ThreadProc(LPVOID lpParameter);

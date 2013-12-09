@@ -96,8 +96,7 @@ CServer::~CServer(void)
 	RealiseServer();
 }
 void CServer::RealiseServer()
-{
-	
+{	
 	StopThread=TRUE;
 	Sleep(120);
 	clientPool->deleteAllThread();	
@@ -183,7 +182,7 @@ BOOL CServer::onConnected()
 	//  client->SendData((char *)buf, strlen((menuStr))*2);	  
 
 	  client->clientPool=clientPool;
-	  client->Execute();
+	  client->Execute(client);
 	  clientPool->addClient(client);
 	  clientPool->addListenSocket(AcceptSocket);
 
@@ -192,7 +191,7 @@ BOOL CServer::onConnected()
 BOOL CServer::StartWaitConnect()
 {
 	printf("Start Listen server on port %d\n",this->m_port);
-	return Execute();
+	return Execute(this);
 }
 
 BOOL CServer::StopWaitConnect()

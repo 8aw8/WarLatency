@@ -24,7 +24,7 @@ int main(int argc, char **argv)
 
    CClientPool* clientPool = new CClientPool();	  
 
-   clientPool->Execute();
+   clientPool->Execute(clientPool);
    
    CServer* server = new CServer(12345);
    server->clientPool = clientPool;

@@ -14,7 +14,7 @@
 
 #include "Games.h"
 
-int RecvBufferSize=8192;
+
 
 //#include <Pkfuncs.h>
 
@@ -29,39 +29,53 @@ void printPacket(char* Packet, int Len)
 */
 
 CClient::CClient(SOCKET socket) :CMyThread()
-{
+{	
 	m_socket=socket;
 	StopingThread=FALSE;
-	command = new char[256];
+	RecvBufferSize=8192;
+
+//	command = new char[256];
+//	SendBuffer = new char[RecvBufferSize]; 
+//	command[256];
+//	SendBuffer[RecvBufferSize];
 	command[0]=0;
 	commandSize=0;
-	SendBuffer = new char[RecvBufferSize]; 
+	
 	type=1;//Class CClient
 	game_mode=0;// Game mode: 0 - Select game; 1 - Game started;
 }
 CClient::~CClient(void)
 {
   //Realize();
-	delete [] SendBuffer;
-	delete [] command;
+	
 }
 void CClient::Realize()
 {
+	StopLoop = TRUE;
+
 	shutdown(m_socket, SD_BOTH);
 	closesocket(m_socket);
+	
+ //  delete [ ] command;
+ //  delete [ ] SendBuffer;
+	
 //	CloseHandle(m_hThread);
 }
 
 DWORD CClient::ThreadFunc()
 {
-	int BytesSend = -1; 
+	
+	CClient* localClient = (CClient*)threadParam;
+
+	int BytesRecv = -1; 
     
-  printf("Clients Socket= %d\n",m_socket);
-  BOOL StopLoop= FALSE;
-  while ((!StopLoop))
+	printf("Clients Socket= %d\n",localClient->m_socket);
+  
+   StopLoop= FALSE;
+  while ((!localClient->StopLoop))
    {
            Sleep(60);               
-		   BytesSend = recv(m_socket, SendBuffer, RecvBufferSize, 0);
+		   BytesRecv = recv(localClient->m_socket, localClient->SendBuffer, localClient->RecvBufferSize, 0);
 		//   printf("Byte recive %d \n", BytesSend);
 /*
    recv 
@@ -69,28 +83,27 @@ DWORD CClient::ThreadFunc()
     0 - not connected
    >0 - data recive
 */
-           if (BytesSend<=0)
+           if (BytesRecv<=0)
            {
 			   if(handlErr(WSAGetLastError())!=0)//disconect
 				   {
-					   StopLoop=TRUE;
+					   localClient->StopLoop=TRUE;
 					   printf("Client %d for ip %s is disconnected.\n",m_hThread, IP_Addr);
 
 				   }
-			   if (BytesSend==0)                   
+			   if (BytesRecv==0)                   
                    {
-						  StopLoop=TRUE;
+						  localClient->StopLoop=TRUE;
 			              printf("Client %d for ip %s is disconnected.\n",m_hThread, IP_Addr);                         
                    }//disconect        
            }
 		   else
 		   {  
-			  if (BytesSend>0) OnRecvPacket(SendBuffer, BytesSend);			   
+			  if (BytesRecv>0) OnRecvPacket(localClient->SendBuffer, BytesRecv);			   
 		   }		   		   
   }// while (!StopLoop)         
-  
+ 
   //InterlockedIncrement((long*)&StopingThread);                             
-  this->Realize();
   StopingThread=TRUE;
   return 0;
 }
@@ -158,13 +171,13 @@ void CClient::startGame(void)
 		clientPool->addClient(games);
 			  this->runGames=games;
 		gameClient->runGames=games;
-		games->Execute();	
+		games->Execute(games);	
 	}
 }
 
 
 void CClient::OnRecvPacket(char* buffer, int BufferSize)
-{		
+{	
 	buffer[BufferSize]=0;
 	// printf("Thread:%d socket:%d recive %s \n", m_hThread, m_socket, buffer);
 	
