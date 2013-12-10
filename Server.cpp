@@ -1,7 +1,4 @@
 
-//#define _AFXDLL
-
-//#include "stdafx.h"
 #include "afxcoll.h"
 #include "Server.h"
 #include "winsock2.h"
@@ -47,9 +44,9 @@ CServer::~CServer(void)
 void CServer::RealiseServer()
 {	
 	StopThread=TRUE;
-	Sleep(120);//Ожидание завершения потока для довыполнения всех процедур в потоке
+	Sleep(120);//РћР¶РёРґР°РЅРёРµ Р·Р°РІРµСЂС€РµРЅРёСЏ РїРѕС‚РѕРєР° РґР»СЏ РґРѕРІС‹РїРѕР»РЅРµРЅРёСЏ РІСЃРµС… РїСЂРѕС†РµРґСѓСЂ РІ РїРѕС‚РѕРєРµ
 	clientPool->deleteAllThread();	
-    shutdown(ListenSocket, SD_BOTH);//Дисконект на стороне сервера
+    shutdown(ListenSocket, SD_BOTH);//Р”РёСЃРєРѕРЅРµРєС‚ РЅР° СЃС‚РѕСЂРѕРЅРµ СЃРµСЂРІРµСЂР°
 	closesocket(ListenSocket);  
 	WSACleanup();
 }
@@ -96,7 +93,7 @@ SOCKET CServer::WaitConnect()
 
 DWORD CServer::ThreadFunc()
 { 
-// Цикл потока, ожидающий конекты
+// Р¦РёРєР» РїРѕС‚РѕРєР°, РѕР¶РёРґР°СЋС‰РёР№ РєРѕРЅРµРєС‚С‹
   while (!StopThread)
   {
 	AcceptSocket=WaitConnect();
@@ -105,7 +102,7 @@ DWORD CServer::ThreadFunc()
         AcceptSocket=WaitConnect();
 		Sleep(60);
 	}    
-	   if (!StopThread) onConnected(); //Запуск обработчика при появлении конекта
+	   if (!StopThread) onConnected(); //Р—Р°РїСѓСЃРє РѕР±СЂР°Р±РѕС‚С‡РёРєР° РїСЂРё РїРѕСЏРІР»РµРЅРёРё РєРѕРЅРµРєС‚Р°
   }
    printf("Server thread stop!!!\n");
 	return 0;
@@ -124,21 +121,21 @@ BOOL CServer::onConnected()
 	  strcpy_s(client->IP_Addr,inet_ntoa(send_service.sin_addr));
 	
 	  client->SendData(menuStr, strlen(menuStr));	  
-	  client->clientPool=clientPool;//Присвоение указателя на текущий рабочий пулл создаваемому клиенту
+	  client->clientPool=clientPool;//РџСЂРёСЃРІРѕРµРЅРёРµ СѓРєР°Р·Р°С‚РµР»СЏ РЅР° С‚РµРєСѓС‰РёР№ СЂР°Р±РѕС‡РёР№ РїСѓР»Р» СЃРѕР·РґР°РІР°РµРјРѕРјСѓ РєР»РёРµРЅС‚Сѓ
 	  client->Execute(client);
 	  clientPool->addClient(client);
 
     return TRUE;
 }
-//Запуск потока ожидания конектов
+//Р—Р°РїСѓСЃРє РїРѕС‚РѕРєР° РѕР¶РёРґР°РЅРёСЏ РєРѕРЅРµРєС‚РѕРІ
 BOOL CServer::StartWaitConnect()
 {
 	printf("Start Listen server on port %d\n",this->m_port);
 	return Execute(this);
 }
 
-//Остановка потока
-//Не использую terminate для возможности отработки всех команд в цикле потока
+//РћСЃС‚Р°РЅРѕРІРєР° РїРѕС‚РѕРєР°
+//РќРµ РёСЃРїРѕР»СЊР·СѓСЋ terminate РґР»СЏ РІРѕР·РјРѕР¶РЅРѕСЃС‚Рё РѕС‚СЂР°Р±РѕС‚РєРё РІСЃРµС… РєРѕРјР°РЅРґ РІ С†РёРєР»Рµ РїРѕС‚РѕРєР°
 
 BOOL CServer::StopWaitConnect()
 {
