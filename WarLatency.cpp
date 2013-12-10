@@ -13,15 +13,16 @@
 
 int main(int argc, char **argv)
 {
-   CClientPool* clientPool = new CClientPool();	  
-
+   //Создание и запуск потока пула потоков
+   CClientPool* clientPool = new CClientPool();	 
    clientPool->Execute(clientPool);
+   
    
    CServer* server = new CServer(12345);
    server->clientPool = clientPool;
    server->StartWaitConnect();
 
-  _getch();
+  _getch();// Ожидает нажатие клавиши
   
    server->StopWaitConnect();
    server->RealiseServer();

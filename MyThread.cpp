@@ -8,11 +8,11 @@
 
 unsigned __stdcall ThreadProc(void* lpParameter)
 {
-	CMyThread *pMyThread=(CMyThread *)lpParameter;	  
+	CMyThread *pMyThread=(CMyThread *)lpParameter;	//Получение указателя на запускаемый поток  
 	
-   DWORD result=pMyThread->ThreadFunc();     
+   DWORD result=pMyThread->ThreadFunc();  //Выполнение потока   
 
-	_endthreadex(0);
+	_endthreadex(0);//Завершение выполневшегося потока
 	return 0;
 }
 
@@ -40,7 +40,7 @@ HANDLE CMyThread::getThreadHandle()
 BOOL CMyThread::Execute(void *param)
 {
 	threadParam = param;
-	if (m_hThread)
+	if (m_hThread)//Текущий поток запущен
 	{
 		return FALSE;
 	}

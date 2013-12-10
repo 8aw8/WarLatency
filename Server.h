@@ -7,44 +7,35 @@
 #include "Client.h"
 #include "ClientPool.h"
 
- using namespace std;
-
-VOID CALLBACK MyTimerProc(
-	HWND hwnd,      // handle to window for timer messages 
-    UINT message,     // WM_TIMER message 
-    UINT idTimer,     // timer identifier 
-    DWORD dwTime);
+using namespace std;
 
 class CServer: public CMyThread 
 {
 public:
 	CServer();
-	int InitServer(u_short port);
-	void RealiseServer();
 	CServer(u_short port);
-	virtual ~CServer(void);
-    bool BindListenSocket();
-	
+	int InitServer(u_short port);
+	virtual ~CServer(void);	
+	void RealiseServer();//ќчистка данных класса без запуска деструктора
+	CClientPool *clientPool;//”казатель на пул потоков, обслуживающих сервер
+
 	BOOL StartWaitConnect();
-	SOCKET WaitConnect();
-    BOOL StopWaitConnect();
-
-	CClientPool *clientPool;
-
-	char* EventName;
-	HANDLE StopEvent;
-	HANDLE StopEventClient;
+    BOOL StopWaitConnect();			
+	
+private:		
 	BOOL StopThread;
-	
-	
- virtual BOOL onConnected();
-     
-    u_short m_port;
-    SOCKET ListenSocket;
+
+	u_short m_port;
+	SOCKET ListenSocket;
 	SOCKET AcceptSocket;
 	sockaddr_in service;
 	sockaddr_in send_service;
 
-	DWORD ThreadFunc();
+	BOOL BindListenSocket();
 	
+	SOCKET WaitConnect();	
+	virtual BOOL onConnected();//обработчик событи€ конекта к серверу клиента
+
+protected:
+	DWORD ThreadFunc();
 };

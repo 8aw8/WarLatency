@@ -2,7 +2,6 @@
 
 #include "afxcoll.h"
 #include <iostream>
-
 #include "Client.h"
 #include "Games.h"
 
@@ -12,10 +11,8 @@ CClient::CClient(SOCKET socket) :CMyThread()
 	m_socket=socket;
 	StopingThread=FALSE;
 	RecvBufferSize=8192;
-
 	command[0]=0;
-	commandSize=0;
-	
+	commandSize=0;	
 	type=1;//Class CClient
 	game_mode=0;// Game mode: 0 - Select game; 1 - Game started;
 }
@@ -31,25 +28,19 @@ void CClient::Realize()
 }
 
 DWORD CClient::ThreadFunc()
-{
-	
-	CClient* localClient = (CClient*)threadParam;
+{	
+	CClient* localClient = (CClient*)threadParam; //Получение указателя на область данных, с которой будет работать поток, обычно текущий экземпляр класса.
 
-	int BytesRecv = -1; 
-    
+	int BytesRecv = -1;     
 	printf("Clients Socket= %d\n",localClient->m_socket);
-  
+
+//Цикл обработки потока 
+//Слушает сокет,при появлении данных в сокете запускает обработчик OnRecvPacket.
    StopLoop= FALSE;
   while ((!localClient->StopLoop))
    {
            Sleep(60);               
 		   BytesRecv = recv(localClient->m_socket, localClient->SendBuffer, localClient->RecvBufferSize, 0);		
-/*
-   recv 
-   -1 - not send data 
-    0 - not connected
-   >0 - data recive
-*/
            if (BytesRecv<=0)
            {
 			   if(handlErr(WSAGetLastError())!=0)//disconect
@@ -66,12 +57,10 @@ DWORD CClient::ThreadFunc()
            }
 		   else
 		   {  
-			  if (BytesRecv>0) OnRecvPacket(localClient->SendBuffer, BytesRecv);			   
+			  if (BytesRecv>0) OnRecvPacket(localClient->SendBuffer, BytesRecv);//Запуск обработчика получения данных из сокета			   
 		   }		   		   
   }// while (!StopLoop)         
- 
-  //InterlockedIncrement((long*)&StopingThread);                             
-  StopingThread=TRUE;
+  
   return 0;
 }
 
@@ -109,17 +98,12 @@ char* CClient::setCommand(char* buffer, int BufferSize)
 	return NULL;
 }
 
-void CClient::getClients()
-{
-  
-}
 
 void CClient::startGame(void)
 {
 	char *str1 = "Client not found. \n\r";
-	
-	clientPool->printClients();
-	
+		
+	//Получение рабочего клиента из числа подключившихся
 	CMyThread *_client_ = clientPool->getRandomClient(this);
 	if (_client_==NULL)
 	{
@@ -128,11 +112,11 @@ void CClient::startGame(void)
 	else
 	{
 		CClient *gameClient = dynamic_cast< CClient* >(_client_);
-		CGames *games = new CGames(this,gameClient);
-		clientPool->addClient(games);
-			  this->runGames=games;
-		gameClient->runGames=games;
-		games->Execute(games);	
+		CGames *games = new CGames(this,gameClient);//Создание и запуск потока обрабатывающего игру
+		clientPool->addClient(games);//Добавление в пулл потоков 
+			  this->runGames=games;//Сохранить указатель на класс игры у играющих клиентов
+		gameClient->runGames=games;//Сохранить указатель на класс игры у играющих клиентов
+		games->Execute(games);//Запуск игры
 	}
 }
 
@@ -142,19 +126,21 @@ void CClient::OnRecvPacket(char* buffer, int BufferSize)
 	buffer[BufferSize]=0;
 
   if (game_mode==0)
+
+//Обработка данных , полученных из сокета
+//Из сокета прийти может все что угодно. для этого нужен обработчик вводимого буфера
 	if (setCommand(buffer, BufferSize)!=NULL)
 	{	
 		switch (atoi(command))
 		{
-		case 1:			
-			getClients();			 
+		case 1:					
 			 break;				
 		case 2:
 			startGame();
 			 break;				
 		case 9:
 			{		
-				Realize();
+				Realize();//Закрытие конекта отключение клиента.
 			}
 			 break;	
 		default:
@@ -163,13 +149,13 @@ void CClient::OnRecvPacket(char* buffer, int BufferSize)
 	    }//switch 
 	}
 	
-	if (game_mode==1)
+	if (game_mode==1)// Клиент в игре 
 	{
 		CGames *games =dynamic_cast< CGames* >(runGames);
 
 		int endCommand = -1;
 		int i=0;
-
+// Проверка команды во время игры поиск пробела в водимых данных
 	   while (i<BufferSize)
        {
 	       if (buffer[i]==' ')
@@ -177,10 +163,10 @@ void CClient::OnRecvPacket(char* buffer, int BufferSize)
 			  endCommand=0;
 			  i=BufferSize;
 		   }								  
-		i++;
+		   i++;
 	   }//while
 
-	   if (endCommand==0)  games->eventFromClient(this);
+	   if (endCommand==0)  games->eventFromClient(this); //Ответ клиента на событие в игре, обрабатывается в потоке клиента
 	} 
 }
 

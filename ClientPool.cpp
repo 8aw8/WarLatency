@@ -18,75 +18,69 @@ CClientPool::~CClientPool(void)
 
 void CClientPool::deleteNotWorkingThread()
 {
-  CMyThread* client;
-  CClient *workClient;
-  CGames *games;
+	CMyThread* client;
+	CClient *workClient;
+	CGames *games;
 
-  for (unsigned int i = 0; i< VectorClient.size();i++ )
-  {
-  
-	  client = VectorClient[i];
-	  
-	if (!client->isActive())
+	for (unsigned int i = 0; i< VectorClient.size();i++ )
 	{
-		HANDLE idClient =  client->getThreadHandle();		
-	
-		VectorClient.erase(VectorClient.begin()+i);
-		if (workClient = dynamic_cast< CClient* >(client)) 
-		{
-			workClient->Realize();
-			printf("ClientPool deleting client %d\n", idClient);	
-		}
-		if (games = dynamic_cast< CGames* >(client))
-		{
-			games->Realize();
-			printf("ClientPool deleting games %d\n", idClient);				
-		}
-	
-	client->Terminate();
-  	delete client;
+		client = VectorClient[i];
 
-	}
-  }    
+		if (!client->isActive()) //Если поток завершился
+		{
+			HANDLE idClient =  client->getThreadHandle();		
+
+			VectorClient.erase(VectorClient.begin()+i);
+			if (workClient = dynamic_cast< CClient* >(client)) 
+			{
+				workClient->Realize();
+				printf("ClientPool deleting client %d\n", idClient);	
+			}
+			if (games = dynamic_cast< CGames* >(client))
+			{
+				games->Realize();
+				printf("ClientPool deleting games %d\n", idClient);				
+			}
+
+			client->Terminate();
+			delete client;
+
+		}
+	}    
 }
 
-void CClientPool::addListenSocket(SOCKET socket)
-{
-	CPoolSocket poolSocket(socket, TRUE);
-	VectorSocket.push_back(poolSocket);
-}
-
+//Обработка добавления потока в пулл потоков
+//Реализована синхронизация семафорами
 void CClientPool::addClient(CMyThread* client)	
 {	
-   if (WaitForSingleObject(hSemaphore, 30000) == WAIT_FAILED) return;
-	 VectorClient.push_back(client);
-   if(hSemaphore != NULL) ReleaseSemaphore(hSemaphore, 1, NULL);
+	if (WaitForSingleObject(hSemaphore, 30000) == WAIT_FAILED) return;
+	VectorClient.push_back(client);
+	if(hSemaphore != NULL) ReleaseSemaphore(hSemaphore, 1, NULL);
 }
 
 void CClientPool::printClients()
 {
-  CClient* client;
+	CClient* client;
 
-  for (unsigned int i = 0; i< VectorClient.size();i++ )
-  {
-    client=dynamic_cast< CClient* >(VectorClient[i]);
-	client->EchoClient();	
-  }//for  
+	for (unsigned int i = 0; i< VectorClient.size();i++ )
+	{
+		client=dynamic_cast< CClient* >(VectorClient[i]);
+		client->EchoClient();	
+	}//for  
 }
 
 void CClientPool::deleteAllThread()
 {
-   CMyThread* client;
-   CClient *workClient;
-   CGames *games;
+	CMyThread* client;
+	CClient *workClient;
+	CGames *games;
 
-  for (unsigned int i = 0; i< VectorClient.size();i++ )
-  {
-  
-	client=VectorClient[i];	
-	HANDLE idClient =  client->getThreadHandle();	
-	client->Terminate();	
-
+	for (unsigned int i = 0; i< VectorClient.size();i++ )
+	{
+		client=VectorClient[i];	
+		HANDLE idClient =  client->getThreadHandle();	
+		client->Terminate();	
+		
 		if (workClient = dynamic_cast< CClient* >(client)) 
 		{
 			workClient->Realize();
@@ -97,15 +91,8 @@ void CClientPool::deleteAllThread()
 			games->Realize();
 			printf("ClientPool deleting games %d\n", idClient);				
 		}
-
-	delete client;
-
-	VectorClient.erase(VectorClient.begin()+i);
-  }
-
-  for (unsigned int i = 0; i< VectorSocket.size();i++ )
-	{
-		VectorSocket.erase(VectorSocket.begin()+i);		
+		delete client;
+		VectorClient.erase(VectorClient.begin()+i);
 	}
 }
 
@@ -129,14 +116,14 @@ int CClientPool::countClients(void)
 
 CMyThread* CClientPool::getRandomClient(CMyThread *client)
 {
- if (WaitForSingleObject(hSemaphore, 30000) == WAIT_FAILED) return NULL;
+	if (WaitForSingleObject(hSemaphore, 30000) == WAIT_FAILED) return NULL;
 
 	vector <CMyThread*> vc;
 	vector <CMyThread*>::iterator vc_Iter1;
 	CClient *resClient;
 
 	for (unsigned int i = 0; i< VectorClient.size();i++ )
-    {
+	{
 		CMyThread *client_=VectorClient[i];	
 		CClient *gameClient;
 		if (gameClient=dynamic_cast< CClient* >(client_))
@@ -146,8 +133,8 @@ CMyThread* CClientPool::getRandomClient(CMyThread *client)
 			}//if (gameClient!=client)
 	}//for
 
-	srand((unsigned int)time(NULL));
-	
+	srand((unsigned int)time(NULL));//Инициализация генератора случайных чисел
+
 	if (vc.size() == 0) 
 	{	
 		resClient=NULL;
@@ -160,22 +147,17 @@ CMyThread* CClientPool::getRandomClient(CMyThread *client)
 
 		printf("Random position client is %d from %d \n\r", posClient, vc.size());
 	}
-	
-	 for (unsigned int i = 0; i< vc.size();i++ )
-	 {    
+
+	for (unsigned int i = 0; i< vc.size();i++ )
+	{    
 		vc.erase(vc.begin()+i);
-     }
+	}
 
 	printf("countClients=%d \n", countClients());
 
- if(hSemaphore != NULL) ReleaseSemaphore(hSemaphore, 1, NULL);
+	if(hSemaphore != NULL) ReleaseSemaphore(hSemaphore, 1, NULL);
 
 	return resClient;
-}
-
-void CClientPool::listenPoolSocket()
-{
-
 }
 
 
@@ -186,6 +168,6 @@ DWORD CClientPool::ThreadFunc()
 		deleteNotWorkingThread();
 		Sleep(1000);		
 	}
-		
+
 	return 0;
 }

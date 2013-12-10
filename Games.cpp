@@ -30,6 +30,9 @@ void CGames::Realize()
 	CloseHandle(hSemaphore);
 }
 
+//Обработчик вызывается клиентом в момент обработки события от клиента
+// обрабатывается семафор, не дающий одновременно вызвать обработчик несколькими клиентами
+
 void CGames::eventFromClient(CClient *client)
 {		
 if (WaitForSingleObject(hSemaphore, 30000) == WAIT_FAILED) return;
@@ -46,6 +49,7 @@ if (WaitForSingleObject(hSemaphore, 30000) == WAIT_FAILED) return;
 	CClient *actionClient;
 	CClient *otherClient;
 
+//Выбор активного клиента, сделавшего ход
 	if (client == client1)
 	{
 		actionClient = client1;
@@ -92,13 +96,15 @@ DWORD CGames::ThreadFunc(void)
 	printf("START GAME %d and %d. \n", client1->getThreadHandle(), client2->getThreadHandle());
 
 	char* startGameStr = "Client is start game. \r\nPress the spacebar when you see the number 3 \n\r"; //��������� ������. ������� ������, ����� ������� ����� 3
-		
+
+//Сообщения клиентам о начале игры	
 	client1->SendData(startGameStr, strlen(startGameStr));		
 	client2->SendData(startGameStr, strlen(startGameStr));		
 		
    StopLoop= FALSE;
    char numStr[2];
 
+   //Цикл потока
    while ((!StopLoop))
    {
 	   currentNumber = rand()%3+1;	

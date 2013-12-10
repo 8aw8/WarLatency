@@ -47,17 +47,17 @@ CServer::~CServer(void)
 void CServer::RealiseServer()
 {	
 	StopThread=TRUE;
-	Sleep(120);
+	Sleep(120);//Ожидание завершения потока для довыполнения всех процедур в потоке
 	clientPool->deleteAllThread();	
-    shutdown(ListenSocket, SD_BOTH);
+    shutdown(ListenSocket, SD_BOTH);//Дисконект на стороне сервера
 	closesocket(ListenSocket);  
 	WSACleanup();
 }
 
 
-bool CServer::BindListenSocket()
+BOOL CServer::BindListenSocket()
 { 
-	  bool res=true;
+	  BOOL res=TRUE;
   service.sin_family = AF_INET;
   service.sin_addr.s_addr=htonl(INADDR_ANY);
   service.sin_port = htons(m_port);
@@ -96,6 +96,7 @@ SOCKET CServer::WaitConnect()
 
 DWORD CServer::ThreadFunc()
 { 
+// Цикл потока, ожидающий конекты
   while (!StopThread)
   {
 	AcceptSocket=WaitConnect();
@@ -104,7 +105,7 @@ DWORD CServer::ThreadFunc()
         AcceptSocket=WaitConnect();
 		Sleep(60);
 	}    
-	   if (!StopThread) onConnected();
+	   if (!StopThread) onConnected(); //Запуск обработчика при появлении конекта
   }
    printf("Server thread stop!!!\n");
 	return 0;
@@ -123,18 +124,21 @@ BOOL CServer::onConnected()
 	  strcpy_s(client->IP_Addr,inet_ntoa(send_service.sin_addr));
 	
 	  client->SendData(menuStr, strlen(menuStr));	  
-	  client->clientPool=clientPool;
+	  client->clientPool=clientPool;//Присвоение указателя на текущий рабочий пулл создаваемому клиенту
 	  client->Execute(client);
 	  clientPool->addClient(client);
-	  clientPool->addListenSocket(AcceptSocket);
 
     return TRUE;
 }
+//Запуск потока ожидания конектов
 BOOL CServer::StartWaitConnect()
 {
 	printf("Start Listen server on port %d\n",this->m_port);
 	return Execute(this);
 }
+
+//Остановка потока
+//Не использую terminate для возможности отработки всех команд в цикле потока
 
 BOOL CServer::StopWaitConnect()
 {
