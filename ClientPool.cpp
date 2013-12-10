@@ -26,7 +26,7 @@ void CClientPool::deleteNotWorkingThread()
 	{
 		client = VectorClient[i];
 
-		if (!client->isActive()) //Если поток завершился
+		if (!client->isActive()) //Р•СЃР»Рё РїРѕС‚РѕРє Р·Р°РІРµСЂС€РёР»СЃСЏ
 		{
 			HANDLE idClient =  client->getThreadHandle();		
 
@@ -49,8 +49,8 @@ void CClientPool::deleteNotWorkingThread()
 	}    
 }
 
-//Обработка добавления потока в пулл потоков
-//Реализована синхронизация семафорами
+//РћР±СЂР°Р±РѕС‚РєР° РґРѕР±Р°РІР»РµРЅРёСЏ РїРѕС‚РѕРєР° РІ РїСѓР»Р» РїРѕС‚РѕРєРѕРІ
+//Р РµР°Р»РёР·РѕРІР°РЅР° СЃРёРЅС…СЂРѕРЅРёР·Р°С†РёСЏ СЃРµРјР°С„РѕСЂР°РјРё
 void CClientPool::addClient(CMyThread* client)	
 {	
 	if (WaitForSingleObject(hSemaphore, 30000) == WAIT_FAILED) return;
@@ -133,7 +133,7 @@ CMyThread* CClientPool::getRandomClient(CMyThread *client)
 			}//if (gameClient!=client)
 	}//for
 
-	srand((unsigned int)time(NULL));//Инициализация генератора случайных чисел
+	srand((unsigned int)time(NULL));//РРЅРёС†РёР°Р»РёР·Р°С†РёСЏ РіРµРЅРµСЂР°С‚РѕСЂР° СЃР»СѓС‡Р°Р№РЅС‹С… С‡РёСЃРµР»
 
 	if (vc.size() == 0) 
 	{	
