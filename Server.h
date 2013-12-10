@@ -1,5 +1,3 @@
-//#pragma once
-//#include <stdio.h>
 #include "winsock2.h"
 #include "MyThread.h"
 #include <vector>
@@ -16,8 +14,8 @@ public:
 	CServer(u_short port);
 	int InitServer(u_short port);
 	virtual ~CServer(void);	
-	void RealiseServer();//Очистка данных класса без запуска деструктора
-	CClientPool *clientPool;//Указатель на пул потоков, обслуживающих сервер
+	void RealiseServer();//РћС‡РёСЃС‚РєР° РґР°РЅРЅС‹С… РєР»Р°СЃСЃР° Р±РµР· Р·Р°РїСѓСЃРєР° РґРµСЃС‚СЂСѓРєС‚РѕСЂР°
+	CClientPool *clientPool;//РЈРєР°Р·Р°С‚РµР»СЊ РЅР° РїСѓР» РїРѕС‚РѕРєРѕРІ, РѕР±СЃР»СѓР¶РёРІР°СЋС‰РёС… СЃРµСЂРІРµСЂ
 
 	BOOL StartWaitConnect();
     BOOL StopWaitConnect();			
@@ -34,7 +32,7 @@ private:
 	BOOL BindListenSocket();
 	
 	SOCKET WaitConnect();	
-	virtual BOOL onConnected();//обработчик события конекта к серверу клиента
+	virtual BOOL onConnected();//РѕР±СЂР°Р±РѕС‚С‡РёРє СЃРѕР±С‹С‚РёСЏ РєРѕРЅРµРєС‚Р° Рє СЃРµСЂРІРµСЂСѓ РєР»РёРµРЅС‚Р°
 
 protected:
 	DWORD ThreadFunc();
