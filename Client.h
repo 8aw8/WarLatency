@@ -11,33 +11,37 @@ class CClient : public CMyThread
 public:
 	int type;
 	int game_mode;
+	
+	
+	SOCKET m_socket;
+        BOOL StopingThread;
+	char IP_Addr[16];
+        int RecvBufferSize;
+
+	CClientPool *clientPool;
+	CMyThread *runGames;
+ 	
+
+  	vector <void*> DBTVector;
+  	vector <void*>::iterator v_Iter;
+    
 
 	CClient(SOCKET socket);
 	~CClient(void);
 	void Realize(void);
-
-	SOCKET m_socket;
-      BOOL StopingThread;
-	  char IP_Addr[16];
-   int RecvBufferSize;
-
-	  CClientPool *clientPool;
-	  CMyThread *runGames;
- 	
-
-  vector <void*> DBTVector;
-  vector <void*>::iterator v_Iter;
-    
-   DWORD ThreadFunc();
-    void EchoClient();
-
-	 int handlErr(const int err);
-   char* setCommand(char* buffer, int BufferSize);
-
-   	void OnRecvPacket(char* buffer, int BufferSize);
+   
+        
+	void OnRecvPacket(char* buffer, int BufferSize);
 	void SendData(char* buffer, int bufferSize);
 	void CClient::getClients();	
+	void EchoClient();
+	
 	void startGame(void);
+       char* setCommand(char* buffer, int BufferSize);
+	
+	
+        int handlErr(const int err);
+	DWORD ThreadFunc();
 
 private:
 
