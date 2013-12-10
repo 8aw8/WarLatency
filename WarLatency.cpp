@@ -10,18 +10,9 @@
 #include <conio.h>
 #include "Server.h"
 #include "ClientPool.h"
-//#include <ctype.h>
-
-#include <locale.h>
-
-
 
 int main(int argc, char **argv)
 {
-	
-	setlocale(LC_ALL, "rus");
-    printf("%s", "Привет, мир! \n");
-
    CClientPool* clientPool = new CClientPool();	  
 
    clientPool->Execute(clientPool);

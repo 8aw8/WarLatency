@@ -3,63 +3,12 @@
 
 //#include "stdafx.h"
 #include "afxcoll.h"
-#include ".\server.h"
+#include "Server.h"
 #include "winsock2.h"
 #include <stdio.h>
 #include "MyThread.h"
 #include "Client.h"
 
-#include <locale.h>
-
-/*
-void CharToWChar(const char * Text,wchar_t * &res)
-{
-	size_t convert=0;
-	size_t bytes = strlen(Text)*2;
-	res = (wchar_t*) calloc(bytes,sizeof(wchar_t*));
-	setlocale(LC_CTYPE, "Russian_Russia.1251");
-	mbstowcs(res,Text,bytes);
-	//return res;
-}
-void WCharToChar(const wchar_t * Text,char * &Res)
-{
-	size_t convert=0;
-	size_t bytes = wcslen(Text)*2;
-	Res = (char *)calloc(bytes,1);
-	setlocale(LC_CTYPE, "Russian_Russia.1251");
-	wcstombs(Res, Text, bytes);	
-}
-
-LPWSTR StringToUnicode(LPCSTR sString)
-{
-    int iLength;
-    iLength = MultiByteToWideChar
-                (
-                CP_ACP,
-                0,
-                sString,
-                -1,
-                NULL,
-                0
-                );
-    if (iLength)
-    {
-        LPWSTR szWideCharStr = new WCHAR[iLength];
-        MultiByteToWideChar
-                (
-                CP_ACP,
-                0,
-                sString,
-                -1,
-                szWideCharStr,
-                iLength
-                );
-        return szWideCharStr;
-    }
-    return NULL;
-}
-
-*/
 
 CServer::CServer(u_short port): CMyThread()
 {
@@ -110,7 +59,6 @@ bool CServer::BindListenSocket()
 { 
 	  bool res=true;
   service.sin_family = AF_INET;
- // service.sin_addr.s_addr = inet_addr(Server_ip);
   service.sin_addr.s_addr=htonl(INADDR_ANY);
   service.sin_port = htons(m_port);
 
@@ -170,17 +118,11 @@ BOOL CServer::onConnected()
    printf("Wait sending message...\n");
 
   char* menuStr = "List gamers: 1\r\nStart game:  2\r\nQuit:        9\r\n";   
-
-//  wchar_t * buf;
-//  CharToWChar(menuStr, buf);
-
+  
   CClient* client = new CClient(AcceptSocket);
 	  strcpy_s(client->IP_Addr,inet_ntoa(send_service.sin_addr));
-	 // strcpy(client->IP_Addr,inet_ntoa(send_service.sin_addr));
+	
 	  client->SendData(menuStr, strlen(menuStr));	  
-	   
-	//  client->SendData((char *)buf, strlen((menuStr))*2);	  
-
 	  client->clientPool=clientPool;
 	  client->Execute(client);
 	  clientPool->addClient(client);
@@ -196,7 +138,6 @@ BOOL CServer::StartWaitConnect()
 
 BOOL CServer::StopWaitConnect()
 {
-	StopThread=TRUE;
- //	terminate();
+	StopThread=TRUE; 
     return TRUE;
 }

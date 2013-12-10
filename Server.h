@@ -3,7 +3,6 @@
 #include "winsock2.h"
 #include "MyThread.h"
 #include <vector>
-//#include <iostream>
 
 #include "Client.h"
 #include "ClientPool.h"
@@ -45,12 +44,7 @@ public:
 	SOCKET AcceptSocket;
 	sockaddr_in service;
 	sockaddr_in send_service;
-//	CClient* client;
-     
-//    vector <CClient*> VectorClient;
-//	vector <CClient*>::iterator vc_Iter;
 
-//protected:
 	DWORD ThreadFunc();
 	
 };

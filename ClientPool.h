@@ -4,18 +4,7 @@
 #include <vector>
 
  using namespace std;
-/*
-class CLSocket
-{
-public:
-	SOCKET listenSocket;
-	BOOL isUsed;
-	
-	CLSocket(void);
-	CLSocket(SOCKET _socket);
-	virtual ~CLSocket(void);
-};
-*/
+
 
 class CClientPool :public CMyThread
 {
@@ -29,12 +18,7 @@ public:
 	vector <CMyThread*> workClient;
 	vector <CMyThread*>::iterator wc_Iter;
 
-	vector <CMyThread*> vc;
-	vector <CMyThread*>::iterator vc_Iter1;
-
 	CPoolSocket poolSocket;
-	
-//	CLSocket *listenSocket;
 
 	BOOL StopingThread;
 	

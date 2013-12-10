@@ -1,32 +1,11 @@
 //#define _AFXDLL
 
 #include "afxcoll.h"
-
-//#include "stdafx.h"
-#include ".\client.h"
-//#include "Server.h"
 #include <iostream>
-//#include "ServiceDiagnostics.h"
-//#include "ReplicPacket.h"
-//#include "DBThread.h"
-//#include "inifile.h"
-//#include "PacketParser.h"
 
+#include "Client.h"
 #include "Games.h"
 
-
-
-//#include <Pkfuncs.h>
-
-/*
-void printPacket(char* Packet, int Len)
-{
-    printf("packet: ");
-    for(int i=0; i<Len; i++)
-         printf(" %d",Packet[i]);
-    printf("\n");
-} 
-*/
 
 CClient::CClient(SOCKET socket) :CMyThread()
 {	
@@ -34,10 +13,6 @@ CClient::CClient(SOCKET socket) :CMyThread()
 	StopingThread=FALSE;
 	RecvBufferSize=8192;
 
-//	command = new char[256];
-//	SendBuffer = new char[RecvBufferSize]; 
-//	command[256];
-//	SendBuffer[RecvBufferSize];
 	command[0]=0;
 	commandSize=0;
 	
@@ -46,20 +21,13 @@ CClient::CClient(SOCKET socket) :CMyThread()
 }
 CClient::~CClient(void)
 {
-  //Realize();
-	
+  
 }
 void CClient::Realize()
 {
 	StopLoop = TRUE;
-
 	shutdown(m_socket, SD_BOTH);
 	closesocket(m_socket);
-	
- //  delete [ ] command;
- //  delete [ ] SendBuffer;
-	
-//	CloseHandle(m_hThread);
 }
 
 DWORD CClient::ThreadFunc()
@@ -75,8 +43,7 @@ DWORD CClient::ThreadFunc()
   while ((!localClient->StopLoop))
    {
            Sleep(60);               
-		   BytesRecv = recv(localClient->m_socket, localClient->SendBuffer, localClient->RecvBufferSize, 0);
-		//   printf("Byte recive %d \n", BytesSend);
+		   BytesRecv = recv(localClient->m_socket, localClient->SendBuffer, localClient->RecvBufferSize, 0);		
 /*
    recv 
    -1 - not send data 
@@ -144,18 +111,12 @@ char* CClient::setCommand(char* buffer, int BufferSize)
 
 void CClient::getClients()
 {
-	// char * outputBuffer = "1 2 3 \n";
-  //	send(m_socket, outputBuffer, 8,0); 
-
-   std::cout << "Command 1" <<std::endl;			  
-
+  
 }
 
 void CClient::startGame(void)
 {
-	std::cout << "Command 2" <<std::endl;	
-
-	char *str1 = "Client not found. \n";
+	char *str1 = "Client not found. \n\r";
 	
 	clientPool->printClients();
 	
@@ -179,17 +140,10 @@ void CClient::startGame(void)
 void CClient::OnRecvPacket(char* buffer, int BufferSize)
 {	
 	buffer[BufferSize]=0;
-	// printf("Thread:%d socket:%d recive %s \n", m_hThread, m_socket, buffer);
-	
-//	char* menuStr = "List gamers: 1\r\n
-	//               Start game:  2\r\n
-    //               Quit:        9\r\n";   
 
   if (game_mode==0)
 	if (setCommand(buffer, BufferSize)!=NULL)
-	{
-		std::cout << "Thread/Socket:" << m_hThread <<"/"<< m_socket << " Set command " << command <<std::endl;
-
+	{	
 		switch (atoi(command))
 		{
 		case 1:			
@@ -199,23 +153,20 @@ void CClient::OnRecvPacket(char* buffer, int BufferSize)
 			startGame();
 			 break;				
 		case 9:
-			{
-				std::cout << "Command 9" <<std::endl;
+			{		
 				Realize();
 			}
 			 break;	
 		default:
 			std::cout << "Command not found!!!" <<std::endl;
 			 break;
-	    }//switch (head.CodCommand)
+	    }//switch 
 	}
 	
 	if (game_mode==1)
 	{
 		CGames *games =dynamic_cast< CGames* >(runGames);
 
-		std::cout << "Game client is startted!!! runGames=" << games->type << " \n" << std::endl;
-		
 		int endCommand = -1;
 		int i=0;
 
@@ -239,47 +190,8 @@ void CClient::SendData(char* buffer, int bufferSize)
 }
 
 void CClient::EchoClient()
-{
- // printf("This is client socket = %d \n", m_socket);
-	 printf("EchoClient() This is client socket \n");
+{ 
 }
-BOOL CClient::WorkTypePacket(_HeadPacket head)
-{
-	BOOL res=FALSE;
-    if (TrueMDISPacket(head))
-	{
-       // printf("%s\n",head.prefix);
-	  if (head.PacketType==0x10)
-	  {
-		switch (head.CodCommand)
-		{
-		case 0x100:
-			  res=TRUE;
-			 break;
-		case 0x101:
-			  res=TRUE;
-			 break;
-		case 0x200:
-			  res=TRUE;
-			 break;
-		case 0x201:
-			  res=TRUE;
-			 break;
-		case 0x202:
-			  res=TRUE;
-			 break;
-		case 0x700:
-			  res=TRUE;
-			 break;
-		default:
-			 res=FALSE;
-			 break;
-	    }//switch (head.CodCommand)
-	  }//if
-	}//if
-	return res;
-} 
-
 
 int CClient::handlErr(const int err)
 {
@@ -317,29 +229,3 @@ int CClient::handlErr(const int err)
     return res;
 } 
 
-BOOL CClient::TrueMDISPacket(_HeadPacket head)
-{
-	char MDIS[4];
-	MDIS[0]='M';
-	MDIS[1]='D';
-	MDIS[2]='I';
-	MDIS[3]='S';
-	int i=0;
-	
-	while (i<=3)
-	{
-		if (!(head.prefix[i]==MDIS[i])) return FALSE;
-		i++;
-	}
-	return TRUE;
-}
-void CClient::PrintHeadPacket(_HeadPacket head)
-{
-	     printf("//======= Send/Reseive ====\n");
-		 printf("  Prefix: %s \n",head.prefix);
-		 printf("  Type: 0x%x \n",head.PacketType);
-		 printf("  Command: 0x%x \n",head.CodCommand);
-		 printf("  Request ID: 0x%x \n",head.Request_ID);
-		 printf("  Data Size: %ld \n",head.PacketSize);
-	     printf("//========================\n");
-}

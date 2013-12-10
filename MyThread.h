@@ -21,20 +21,20 @@ class CMyThread
 private:
 
 public:
+	CMyThread();	
+	virtual ~CMyThread();
+	
 	int type;
 	BOOL StopingThread;
 	DWORD Terminate(BOOL bCritical=FALSE);
 	DWORD Suspend(void);
 	DWORD Resume(void);
-	BOOL Execute(void *param);
-	CMyThread();	
-	virtual ~CMyThread();
+	BOOL Execute(void *param);	
 
 HANDLE getThreadHandle();
 BOOL  isActive();
 	
-protected:
-	//DWORD m_dwID;
+protected:	
 	HANDLE hSemaphore;
 
     void *threadParam;
@@ -42,11 +42,8 @@ protected:
 	LPDWORD lpThreadId;	
 	virtual DWORD ThreadFunc()=0;
 	friend unsigned __stdcall ThreadProc(void* lpParameter);
-//	friend DWORD WINAPI ThreadProc(LPVOID lpParameter);
-	HANDLE m_hThread;
-	//HANDLE StopThread;
-	LPCRITICAL_SECTION CriticalSection;
-	
+	HANDLE m_hThread;	
+	LPCRITICAL_SECTION CriticalSection;	
 };
 
 #endif //!defined(AFX_MYTHREAD_H__6B892D2F_9DF8_11D5_A3EE_E2D14EB90E01__INCLUDED_)

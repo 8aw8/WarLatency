@@ -74,11 +74,12 @@ if (WaitForSingleObject(hSemaphore, 30000) == WAIT_FAILED) return;
 
 	  actionClient->game_mode=0; 
 	  otherClient->game_mode=0;
+	StopLoop = TRUE;
 
 	Sleep(1000);
 	client1->Realize();
 	client2->Realize();
-	StopLoop = TRUE;
+	
 	}// if (client->game_mode!=0)
 
 	if(hSemaphore != NULL) ReleaseSemaphore(hSemaphore, 1, NULL);
@@ -88,7 +89,9 @@ DWORD CGames::ThreadFunc(void)
 {
 	srand((unsigned int)time(NULL));
 
-	char* startGameStr = "Client is start game. \r\nPress the spacebar when you see the number 3 \n"; //��������� ������. ������� ������, ����� ������� ����� 3
+	printf("START GAME %d and %d. \n", client1->getThreadHandle(), client2->getThreadHandle());
+
+	char* startGameStr = "Client is start game. \r\nPress the spacebar when you see the number 3 \n\r"; //��������� ������. ������� ������, ����� ������� ����� 3
 		
 	client1->SendData(startGameStr, strlen(startGameStr));		
 	client2->SendData(startGameStr, strlen(startGameStr));		
@@ -102,9 +105,9 @@ DWORD CGames::ThreadFunc(void)
 	    _itoa_s(currentNumber,numStr,10);	   
 	  int delay = rand()%2000+2000;
 
-      client1->SendData(numStr, 2);
+	  client1->SendData(numStr, 2);
 	  client1->SendData("\r\n",2);
-	  
+
 	  client2->SendData(numStr, 2);
 	  client2->SendData("\r\n",2);
 	  
