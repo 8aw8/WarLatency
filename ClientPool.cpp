@@ -36,6 +36,7 @@ void CClientPool::deleteNotWorkingThread()
 		{
 			workClient->Realize();
 			printf("ClientPool deleting client %d\n", idClient);	
+			vc.erase(vc.begin()+i);
 		}
 		if (games = dynamic_cast< CGames* >(client))
 		{
@@ -59,7 +60,16 @@ void CClientPool::addListenSocket(SOCKET socket)
 void CClientPool::addClient(CMyThread* client)	
 {	
    if (WaitForSingleObject(hSemaphore, 30000) == WAIT_FAILED) return;
-	 VectorClient.push_back(client);
+	
+    VectorClient.push_back(client);
+	    CMyThread *client_=client;	
+		CClient *gameClient;
+		if (gameClient=dynamic_cast< CClient* >(client_))
+			if  (gameClient->game_mode==0)
+			{
+				vc.push_back(gameClient);
+			}//if (gameClient!=client)
+
    if(hSemaphore != NULL) ReleaseSemaphore(hSemaphore, 1, NULL);
 }
 
@@ -108,6 +118,10 @@ void CClientPool::deleteAllThread()
 	{
 		VectorSocket.erase(VectorSocket.begin()+i);		
 	}
+ for (unsigned int i = 0; i< vc.size();i++ )
+	{
+		vc.erase(vc.begin()+i);		
+	}
 }
 
 int CClientPool::countClients(void)
@@ -132,20 +146,7 @@ CMyThread* CClientPool::getRandomClient(CMyThread *client)
 {
  if (WaitForSingleObject(hSemaphore, 30000) == WAIT_FAILED) return NULL;
 
-	vector <CMyThread*> vc;
-	vector <CMyThread*>::iterator vc_Iter1;
-	CClient *resClient;
-
-	for (unsigned int i = 0; i< VectorClient.size();i++ )
-    {
-		CMyThread *client_=VectorClient[i];	
-		CClient *gameClient;
-		if (gameClient=dynamic_cast< CClient* >(client_))
-			if ((gameClient!=client) && (gameClient->game_mode==0))
-			{
-				vc.push_back(gameClient);
-			}//if (gameClient!=client)
-	}//for
+	CClient *resClient=NULL;
 
 	srand((unsigned int)time(NULL));
 	
@@ -154,22 +155,21 @@ CMyThread* CClientPool::getRandomClient(CMyThread *client)
 		resClient=NULL;
 	}
 	else
-	{
+	{		
 		int count = vc.size();
-		int posClient = rand()%count;
-		resClient = dynamic_cast< CClient* >( vc[posClient] );
+		resClient= dynamic_cast< CClient* >(client);
+		int posClient = 0;
 
-		printf("Random position client is %d from %d \n", posClient, vc.size());
+		while (resClient==client)
+		{
+			posClient = rand()%count;
+			resClient = dynamic_cast< CClient* >( vc[posClient] );
+		}
+
+		printf("Random position client is %d from %d \n", posClient, count);
 
 		//resClient = dynamic_cast< CClient* >( vc[0]);
 	}
-	
-	 for (unsigned int i = 0; i< vc.size();i++ )
-	 {    
-		vc.erase(vc.begin()+i);
-     }
-
-	printf("countClients=%d \n", countClients());
 
  if(hSemaphore != NULL) ReleaseSemaphore(hSemaphore, 1, NULL);
 

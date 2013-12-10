@@ -29,6 +29,9 @@ public:
 	vector <CMyThread*> workClient;
 	vector <CMyThread*>::iterator wc_Iter;
 
+	vector <CMyThread*> vc;
+	vector <CMyThread*>::iterator vc_Iter1;
+
 	CPoolSocket poolSocket;
 	
 //	CLSocket *listenSocket;
