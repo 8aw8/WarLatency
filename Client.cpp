@@ -1,4 +1,3 @@
-//#define _AFXDLL
 
 #include "afxcoll.h"
 #include <iostream>
@@ -29,13 +28,13 @@ void CClient::Realize()
 
 DWORD CClient::ThreadFunc()
 {	
-	CClient* localClient = (CClient*)threadParam; //Получение указателя на область данных, с которой будет работать поток, обычно текущий экземпляр класса.
+	CClient* localClient = (CClient*)threadParam; //РџРѕР»СѓС‡РµРЅРёРµ СѓРєР°Р·Р°С‚РµР»СЏ РЅР° РѕР±Р»Р°СЃС‚СЊ РґР°РЅРЅС‹С…, СЃ РєРѕС‚РѕСЂРѕР№ Р±СѓРґРµС‚ СЂР°Р±РѕС‚Р°С‚СЊ РїРѕС‚РѕРє, РѕР±С‹С‡РЅРѕ С‚РµРєСѓС‰РёР№ СЌРєР·РµРјРїР»СЏСЂ РєР»Р°СЃСЃР°.
 
 	int BytesRecv = -1;     
 	printf("Clients Socket= %d\n",localClient->m_socket);
 
-//Цикл обработки потока 
-//Слушает сокет,при появлении данных в сокете запускает обработчик OnRecvPacket.
+//Р¦РёРєР» РѕР±СЂР°Р±РѕС‚РєРё РїРѕС‚РѕРєР° 
+//РЎР»СѓС€Р°РµС‚ СЃРѕРєРµС‚,РїСЂРё РїРѕСЏРІР»РµРЅРёРё РґР°РЅРЅС‹С… РІ СЃРѕРєРµС‚Рµ Р·Р°РїСѓСЃРєР°РµС‚ РѕР±СЂР°Р±РѕС‚С‡РёРє OnRecvPacket.
    StopLoop= FALSE;
   while ((!localClient->StopLoop))
    {
@@ -57,7 +56,7 @@ DWORD CClient::ThreadFunc()
            }
 		   else
 		   {  
-			  if (BytesRecv>0) OnRecvPacket(localClient->SendBuffer, BytesRecv);//Запуск обработчика получения данных из сокета			   
+			  if (BytesRecv>0) OnRecvPacket(localClient->SendBuffer, BytesRecv);//Р—Р°РїСѓСЃРє РѕР±СЂР°Р±РѕС‚С‡РёРєР° РїРѕР»СѓС‡РµРЅРёСЏ РґР°РЅРЅС‹С… РёР· СЃРѕРєРµС‚Р°			   
 		   }		   		   
   }// while (!StopLoop)         
   
@@ -103,7 +102,7 @@ void CClient::startGame(void)
 {
 	char *str1 = "Client not found. \n\r";
 		
-	//Получение рабочего клиента из числа подключившихся
+	//РџРѕР»СѓС‡РµРЅРёРµ СЂР°Р±РѕС‡РµРіРѕ РєР»РёРµРЅС‚Р° РёР· С‡РёСЃР»Р° РїРѕРґРєР»СЋС‡РёРІС€РёС…СЃСЏ
 	CMyThread *_client_ = clientPool->getRandomClient(this);
 	if (_client_==NULL)
 	{
@@ -112,11 +111,11 @@ void CClient::startGame(void)
 	else
 	{
 		CClient *gameClient = dynamic_cast< CClient* >(_client_);
-		CGames *games = new CGames(this,gameClient);//Создание и запуск потока обрабатывающего игру
-		clientPool->addClient(games);//Добавление в пулл потоков 
-			  this->runGames=games;//Сохранить указатель на класс игры у играющих клиентов
-		gameClient->runGames=games;//Сохранить указатель на класс игры у играющих клиентов
-		games->Execute(games);//Запуск игры
+		CGames *games = new CGames(this,gameClient);//РЎРѕР·РґР°РЅРёРµ Рё Р·Р°РїСѓСЃРє РїРѕС‚РѕРєР° РѕР±СЂР°Р±Р°С‚С‹РІР°СЋС‰РµРіРѕ РёРіСЂСѓ
+		clientPool->addClient(games);//Р”РѕР±Р°РІР»РµРЅРёРµ РІ РїСѓР»Р» РїРѕС‚РѕРєРѕРІ 
+			  this->runGames=games;//РЎРѕС…СЂР°РЅРёС‚СЊ СѓРєР°Р·Р°С‚РµР»СЊ РЅР° РєР»Р°СЃСЃ РёРіСЂС‹ Сѓ РёРіСЂР°СЋС‰РёС… РєР»РёРµРЅС‚РѕРІ
+		gameClient->runGames=games;//РЎРѕС…СЂР°РЅРёС‚СЊ СѓРєР°Р·Р°С‚РµР»СЊ РЅР° РєР»Р°СЃСЃ РёРіСЂС‹ Сѓ РёРіСЂР°СЋС‰РёС… РєР»РёРµРЅС‚РѕРІ
+		games->Execute(games);//Р—Р°РїСѓСЃРє РёРіСЂС‹
 	}
 }
 
@@ -127,8 +126,8 @@ void CClient::OnRecvPacket(char* buffer, int BufferSize)
 
   if (game_mode==0)
 
-//Обработка данных , полученных из сокета
-//Из сокета прийти может все что угодно. для этого нужен обработчик вводимого буфера
+//РћР±СЂР°Р±РѕС‚РєР° РґР°РЅРЅС‹С… , РїРѕР»СѓС‡РµРЅРЅС‹С… РёР· СЃРѕРєРµС‚Р°
+//РР· СЃРѕРєРµС‚Р° РїСЂРёР№С‚Рё РјРѕР¶РµС‚ РІСЃРµ С‡С‚Рѕ СѓРіРѕРґРЅРѕ. РґР»СЏ СЌС‚РѕРіРѕ РЅСѓР¶РµРЅ РѕР±СЂР°Р±РѕС‚С‡РёРє РІРІРѕРґРёРјРѕРіРѕ Р±СѓС„РµСЂР°
 	if (setCommand(buffer, BufferSize)!=NULL)
 	{	
 		switch (atoi(command))
@@ -140,7 +139,7 @@ void CClient::OnRecvPacket(char* buffer, int BufferSize)
 			 break;				
 		case 9:
 			{		
-				Realize();//Закрытие конекта отключение клиента.
+				Realize();//Р—Р°РєСЂС‹С‚РёРµ РєРѕРЅРµРєС‚Р° РѕС‚РєР»СЋС‡РµРЅРёРµ РєР»РёРµРЅС‚Р°.
 			}
 			 break;	
 		default:
@@ -149,13 +148,13 @@ void CClient::OnRecvPacket(char* buffer, int BufferSize)
 	    }//switch 
 	}
 	
-	if (game_mode==1)// Клиент в игре 
+	if (game_mode==1)// РљР»РёРµРЅС‚ РІ РёРіСЂРµ 
 	{
 		CGames *games =dynamic_cast< CGames* >(runGames);
 
 		int endCommand = -1;
 		int i=0;
-// Проверка команды во время игры поиск пробела в водимых данных
+// РџСЂРѕРІРµСЂРєР° РєРѕРјР°РЅРґС‹ РІРѕ РІСЂРµРјСЏ РёРіСЂС‹ РїРѕРёСЃРє РїСЂРѕР±РµР»Р° РІ РІРѕРґРёРјС‹С… РґР°РЅРЅС‹С…
 	   while (i<BufferSize)
        {
 	       if (buffer[i]==' ')
@@ -166,7 +165,7 @@ void CClient::OnRecvPacket(char* buffer, int BufferSize)
 		   i++;
 	   }//while
 
-	   if (endCommand==0)  games->eventFromClient(this); //Ответ клиента на событие в игре, обрабатывается в потоке клиента
+	   if (endCommand==0)  games->eventFromClient(this); //РћС‚РІРµС‚ РєР»РёРµРЅС‚Р° РЅР° СЃРѕР±С‹С‚РёРµ РІ РёРіСЂРµ, РѕР±СЂР°Р±Р°С‚С‹РІР°РµС‚СЃСЏ РІ РїРѕС‚РѕРєРµ РєР»РёРµРЅС‚Р°
 	} 
 }
 
@@ -214,4 +213,5 @@ int CClient::handlErr(const int err)
     }
     return res;
 } 
+
 
